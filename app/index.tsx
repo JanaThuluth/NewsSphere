@@ -1,9 +1,5 @@
-import { Text, View } from "react-native";
+import WelcomeScreen from "../src/features/auth/screens/WelcomeScreen";
 
-export default function Home() {
-  return (
-    <View>
-      <Text>Home Screen</Text>
-    </View>
-  );
+export default function Index() {
+  return <WelcomeScreen />;
 }
