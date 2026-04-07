@@ -2,17 +2,20 @@ import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import AuthCard from "../../../components/ui/AuthCard";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../lib/firebase";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Colors, Fonts, FontSizes } from "../../../constants/constants";
 
@@ -23,6 +26,41 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [secureText, setSecureText] = useState(true);
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Missing information", "Please enter your email and password.");
+      return;
+    }
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
+
+      console.log("Logged in:", userCredential.user.email);
+      router.replace("/(tabs)/home");
+    } catch (error: any) {
+      let message = "Something went wrong. Please try again.";
+
+      if (error.code === "auth/invalid-email") {
+        message = "The email address is invalid.";
+      } else if (error.code === "auth/user-not-found") {
+        message = "No account found with this email.";
+      } else if (error.code === "auth/wrong-password") {
+        message = "The password is incorrect.";
+      } else if (error.code === "auth/invalid-credential") {
+        message = "Invalid email or password.";
+      } else if (error.code === "auth/too-many-requests") {
+        message = "Too many attempts. Please try again later.";
+      }
+
+      Alert.alert("Login Failed", message);
+      console.log("Login error:", error.code, error.message);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -107,7 +145,11 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.loginButton} activeOpacity={0.85}>
+            <TouchableOpacity
+              style={styles.loginButton}
+              activeOpacity={0.85}
+              onPress={handleLogin}
+            >
               <Text style={styles.loginButtonText}>Login</Text>
             </TouchableOpacity>
 
@@ -158,19 +200,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 40,
     paddingBottom: 30,
-  },
-  card: {
-    backgroundColor: Colors.white,
-    borderRadius: 32,
-    paddingHorizontal: 24,
-    paddingTop: 24  ,
-    paddingBottom: 36,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 18,
-    elevation: 6,
-    width: "100%",
   },
   backButton: {
     width: 40,
@@ -257,7 +286,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 30,
-
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
