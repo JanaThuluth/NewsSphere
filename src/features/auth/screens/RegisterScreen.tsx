@@ -320,7 +320,7 @@ export default function RegisterScreen() {
                 activeOpacity={0.8}
                 onPress={() => router.push("/login")}
               >
-                <Text style={styles.signinText}>Sign In</Text>
+                <Text style={styles.signinText}>Login In</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -412,8 +412,8 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 100,
-    marginBottom: 28,
+    //marginTop: 100,
+    marginBottom: 128,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,

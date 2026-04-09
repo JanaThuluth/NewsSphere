@@ -231,110 +231,116 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <View style={styles.mainContent}>
-              <Text style={styles.heading}>Welcome Back</Text>
-              <Text style={styles.subText}>
-                Login to continue exploring the latest news.
-              </Text>
+              <View>
+                <Text style={styles.heading}>Welcome Back</Text>
+                <Text style={styles.subText}>
+                  Login to continue exploring the latest news.
+                </Text>
 
-              <View
-                style={[
-                  styles.inputWrapper,
-                  emailError ? styles.inputWrapperError : null,
-                ]}
-              >
-                <Feather name="mail" size={20} color={Colors.secondary} />
-                <TextInput
-                  value={email}
-                  onChangeText={handleEmailChange}
-                  onBlur={handleEmailBlur}
-                  placeholder="Email address"
-                  placeholderTextColor={Colors.gray}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="next"
-                  textContentType="emailAddress"
-                  autoComplete="email"
-                  style={styles.input}
-                  editable={!isAnyLoading}
-                  onSubmitEditing={() => passwordInputRef.current?.focus()}
-                />
-              </View>
-              {!!emailError && <Text style={styles.errorText}>{emailError}</Text>}
-
-              <View
-                style={[
-                  styles.inputWrapper,
-                  passwordError ? styles.inputWrapperError : null,
-                ]}
-              >
-                <Feather name="lock" size={20} color={Colors.secondary} />
-                <TextInput
-                  ref={passwordInputRef}
-                  value={password}
-                  onChangeText={handlePasswordChange}
-                  onBlur={handlePasswordBlur}
-                  placeholder="Password"
-                  placeholderTextColor={Colors.gray}
-                  secureTextEntry={secureText}
-                  style={styles.input}
-                  editable={!isAnyLoading}
-                  returnKeyType="done"
-                  textContentType="password"
-                  autoComplete="password"
-                  onSubmitEditing={handleLogin}
-                />
-                <TouchableOpacity
-                  onPress={() => setSecureText((prev) => !prev)}
-                  disabled={isAnyLoading}
-                  activeOpacity={0.8}
+                <View
+                  style={[
+                    styles.inputWrapper,
+                    emailError ? styles.inputWrapperError : null,
+                  ]}
                 >
-                  <Feather
-                    name={secureText ? "eye-off" : "eye"}
-                    size={20}
-                    color={Colors.secondary}
+                  <Feather name="mail" size={20} color={Colors.secondary} />
+                  <TextInput
+                    value={email}
+                    onChangeText={handleEmailChange}
+                    onBlur={handleEmailBlur}
+                    placeholder="Email address"
+                    placeholderTextColor={Colors.gray}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    returnKeyType="next"
+                    textContentType="emailAddress"
+                    autoComplete="email"
+                    style={styles.input}
+                    editable={!isAnyLoading}
+                    onSubmitEditing={() => passwordInputRef.current?.focus()}
                   />
-                </TouchableOpacity>
-              </View>
-              {!!passwordError && (
-                <Text style={styles.errorText}>{passwordError}</Text>
-              )}
+                </View>
+                {!!emailError && (
+                  <Text style={styles.errorText}>{emailError}</Text>
+                )}
 
-              <View style={styles.optionsRow}>
+                <View
+                  style={[
+                    styles.inputWrapper,
+                    passwordError ? styles.inputWrapperError : null,
+                  ]}
+                >
+                  <Feather name="lock" size={20} color={Colors.secondary} />
+                  <TextInput
+                    ref={passwordInputRef}
+                    value={password}
+                    onChangeText={handlePasswordChange}
+                    onBlur={handlePasswordBlur}
+                    placeholder="Password"
+                    placeholderTextColor={Colors.gray}
+                    secureTextEntry={secureText}
+                    style={styles.input}
+                    editable={!isAnyLoading}
+                    returnKeyType="done"
+                    textContentType="password"
+                    autoComplete="password"
+                    onSubmitEditing={handleLogin}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setSecureText((prev) => !prev)}
+                    disabled={isAnyLoading}
+                    activeOpacity={0.8}
+                  >
+                    <Feather
+                      name={secureText ? "eye-off" : "eye"}
+                      size={20}
+                      color={Colors.secondary}
+                    />
+                  </TouchableOpacity>
+                </View>
+                {!!passwordError && (
+                  <Text style={styles.errorText}>{passwordError}</Text>
+                )}
+
+                <View style={styles.optionsRow}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleForgotPassword}
+                    disabled={isAnyLoading}
+                  >
+                    <Text style={styles.forgotText}>
+                      {isForgotLoading ? "Sending..." : "Forgot password?"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View>
                 <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={handleForgotPassword}
+                  style={[
+                    styles.loginButton,
+                    isAnyLoading ? styles.loginButtonDisabled : null,
+                  ]}
+                  activeOpacity={0.85}
+                  onPress={handleLogin}
                   disabled={isAnyLoading}
                 >
-                  <Text style={styles.forgotText}>
-                    {isForgotLoading ? "Sending..." : "Forgot password?"}
+                  <Text style={styles.loginButtonText}>
+                    {isLoginLoading ? "Logging in..." : "Login"}
                   </Text>
                 </TouchableOpacity>
-              </View>
 
-              <TouchableOpacity
-                style={[
-                  styles.loginButton,
-                  isAnyLoading ? styles.loginButtonDisabled : null,
-                ]}
-                activeOpacity={0.85}
-                onPress={handleLogin}
-                disabled={isAnyLoading}
-              >
-                <Text style={styles.loginButtonText}>
-                  {isLoginLoading ? "Logging in..." : "Login"}
-                </Text>
-              </TouchableOpacity>
-
-              <View style={styles.footerRow}>
-                <Text style={styles.footerText}>Don’t have an account? </Text>
-                <TouchableOpacity
-                  onPress={() => router.push("/register")}
-                  disabled={isAnyLoading}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.signupText}>Sign Up</Text>
-                </TouchableOpacity>
+                <View style={styles.footerRow}>
+                  <Text style={styles.footerText}>Don’t have an account? </Text>
+                  <TouchableOpacity
+                    onPress={() => router.push("/register")}
+                    disabled={isAnyLoading}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.signupText}>Sign Up</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </View>
@@ -354,13 +360,14 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingTop: 34,
-    paddingBottom: 24,
     backgroundColor: Colors.white,
   },
   contentWrapper: {
+    flex: 1,
     width: "100%",
     paddingHorizontal: 24,
+    paddingTop: 34,
+    paddingBottom: 50,
     alignSelf: "center",
   },
   backButton: {
@@ -372,7 +379,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   mainContent: {
-    paddingTop: 240,
+    flex: 1,
+    justifyContent: "space-between",
+    paddingTop: 0,
   },
   heading: {
     fontSize: 30,
@@ -381,13 +390,14 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     textAlign: "center",
     marginBottom: 12,
+    marginTop: 30,
   },
   subText: {
     fontSize: 14,
     fontFamily: Fonts.body,
     color: Colors.gray,
     textAlign: "center",
-    marginBottom: 38,
+    marginBottom: 100,
     lineHeight: 21,
   },
   inputWrapper: {
@@ -398,7 +408,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 16,
     height: 56,
-    marginBottom: 8,
+    marginBottom: 20,
     backgroundColor: Colors.white,
   },
   inputWrapperError: {
@@ -415,13 +425,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: Fonts.body,
     color: "#DC2626",
-    marginBottom: 12,
-    marginLeft: 4,
+    marginBottom: 6,
+    marginLeft: 5,
   },
   optionsRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    marginBottom: 38,
+    marginBottom: 20,
     marginTop: 6,
   },
   forgotText: {
@@ -435,7 +445,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 30,
+    marginBottom: 180,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
