@@ -1,7 +1,6 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
-import AuthCard from "../../../components/ui/AuthCard";
 import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
@@ -210,7 +209,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
 
       <KeyboardAvoidingView
         style={styles.flex}
@@ -221,20 +220,20 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <AuthCard>
-            <View style={styles.cardContent}>
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => router.back()}
-                activeOpacity={0.8}
-                disabled={isAnyLoading}
-              >
-                <Ionicons name="arrow-back" size={24} color={Colors.primary} />
-              </TouchableOpacity>
+          <View style={styles.contentWrapper}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+              activeOpacity={0.8}
+              disabled={isAnyLoading}
+            >
+              <Ionicons name="arrow-back" size={24} color={Colors.primary} />
+            </TouchableOpacity>
 
+            <View style={styles.mainContent}>
               <Text style={styles.heading}>Welcome Back</Text>
               <Text style={styles.subText}>
-                Sign in to continue exploring the latest news.
+                Login to continue exploring the latest news.
               </Text>
 
               <View
@@ -338,7 +337,7 @@ export default function LoginScreen() {
                 </TouchableOpacity>
               </View>
             </View>
-          </AuthCard>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -351,19 +350,18 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.white,
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: "flex-start",
-    paddingHorizontal: 16,
     paddingTop: 34,
     paddingBottom: 24,
+    backgroundColor: Colors.white,
   },
-  cardContent: {
-    minHeight: 670,
-    justifyContent: "flex-start",
-    paddingTop: 29,
+  contentWrapper: {
+    width: "100%",
+    paddingHorizontal: 24,
+    alignSelf: "center",
   },
   backButton: {
     width: 40,
@@ -371,7 +369,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 26,
+    marginBottom: 8,
+  },
+  mainContent: {
+    paddingTop: 240,
   },
   heading: {
     fontSize: 30,
