@@ -1,14 +1,14 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import {
+  Image,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Image,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { Colors, Fonts, FontSizes } from "../../../constants/constants";
 
 export default function WelcomeScreen() {
@@ -28,6 +28,15 @@ export default function WelcomeScreen() {
               style={styles.logo}
               resizeMode="contain"
             />
+
+            <TouchableOpacity
+              style={styles.loginButton}
+              activeOpacity={0.85}
+              onPress={() => router.push("/HomePage")}
+            >
+              <Text style={styles.loginButtonText}>home page</Text>
+            </TouchableOpacity>
+
           </View>
 
           <Text style={styles.title}>Stay Connected</Text>
