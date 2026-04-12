@@ -151,6 +151,7 @@ const HomeScreen = ({ navigation }: any) => {
                     <ActivityIndicator size="large" color={Colors.primary} />
                     <Text style={styles.message}>Loading news...</Text>
                 </View>
+                <AppFooter />
             </View>
         );
     }
@@ -162,6 +163,7 @@ const HomeScreen = ({ navigation }: any) => {
                 <View style={styles.center}>
                     <Text style={styles.message}>{error}</Text>
                 </View>
+                <AppFooter />
             </View>
         );
     }
@@ -224,7 +226,6 @@ const HomeScreen = ({ navigation }: any) => {
                         />
                     </View>
                 }
-                ListFooterComponent={<AppFooter />}
                 stickyHeaderIndices={[1]}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.list}
@@ -233,6 +234,8 @@ const HomeScreen = ({ navigation }: any) => {
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
             />
+
+            <AppFooter />
         </View>
     );
 };
@@ -246,7 +249,7 @@ const styles = StyleSheet.create({
     },
     list: {
         paddingTop: 14,
-        paddingBottom: 0,
+        paddingBottom: 90,
     },
     cardWrapper: {
         paddingHorizontal: 14,
@@ -259,6 +262,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         padding: 24,
+        paddingBottom: 100,
     },
     message: {
         marginTop: 12,

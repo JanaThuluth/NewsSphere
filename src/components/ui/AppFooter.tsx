@@ -1,56 +1,51 @@
-import { Href, router } from "expo-router";
+import { Href, router, usePathname } from "expo-router";
 import React from "react";
-import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
-import { Colors, Fonts, FontSizes } from "../../constants/constants";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Colors, Fonts } from "../../constants/constants";
 
 const AppFooter: React.FC = () => {
-    const links: { label: string; screen: Href }[] = [
-        { label: "Home", screen: "/HomePage" },
-        { label: "Today's News", screen: "/HomePage" },
-        //{ label: "Favorites", screen: "/myFavorites" },
-        { label: "Log In", screen: "/login" },
-        { label: "Sign Up", screen: "/register" },
-    ];
+    const pathname = usePathname();
+
+    const links: {
+        label: string;
+        screen: Href;
+        icon: keyof typeof Ionicons.glyphMap;
+    }[] = [
+            { label: "Home", screen: "/HomePage", icon: "home" },
+            //{ label: "Favorites", screen: "/myFavorites", icon: "heart" },
+            { label: "Account", screen: "/login", icon: "person" },
+        ];
 
     return (
-        <View style={styles.container}>
-            <View style={styles.inner}>
-                <Image
-                    source={require("../../assets/images/icon.png")}
-                    style={styles.logoImage}
-                    resizeMode="contain"
-                />
+        <View style={styles.wrapper}>
+            <View style={styles.container}>
+                {links.map((item) => {
+                    const isActive = pathname === item.screen;
 
-                <Text style={styles.logo}>NewsSphere</Text>
-
-                <Text style={styles.tagline}>
-                    Stay informed with the latest updates from around the world.
-                </Text>
-
-                <View style={styles.links}>
-                    {links.map((item) => (
+                    return (
                         <TouchableOpacity
                             key={item.label}
-                            onPress={() => router.push(item.screen)}
-                            style={styles.linkBtn}
+                            style={styles.navItem}
                             activeOpacity={0.8}
+                            onPress={() => router.push(item.screen)}
                         >
-                            <Text style={styles.linkText}>{item.label}</Text>
+                            <Ionicons
+                                name={isActive ? item.icon : `${item.icon}-outline` as keyof typeof Ionicons.glyphMap}
+                                size={24}
+                                color={isActive ? Colors.primary : Colors.gray}
+                            />
+                            <Text
+                                style={[
+                                    styles.label,
+                                    { color: isActive ? Colors.primary : Colors.gray },
+                                ]}
+                            >
+                                {item.label}
+                            </Text>
                         </TouchableOpacity>
-                    ))}
-                </View>
-
-                <View style={styles.divider} />
-
-                <Text style={styles.copy}>
-                    © 2026 NewsSphere. All rights reserved.
-                </Text>
+                    );
+                })}
             </View>
         </View>
     );
@@ -59,71 +54,36 @@ const AppFooter: React.FC = () => {
 export default AppFooter;
 
 const styles = StyleSheet.create({
+    wrapper: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "transparent",
+        zIndex: 999,
+    },
+
     container: {
-        width: "100%",
-        backgroundColor: Colors.primary,
-        paddingTop: 28,
-        paddingBottom: 20,
-    },
-
-    inner: {
-        paddingHorizontal: 10,
-        alignItems: "center",
-    },
-
-    logoImage: {
-        width: 150,
-        height: 150,
-    },
-
-    logo: {
-        fontSize: 26,
-        fontFamily: Fonts.heading,
-        color: Colors.white,
-        marginBottom: 6,
-    },
-
-    tagline: {
-        fontSize: 14,
-        fontFamily: Fonts.body,
-        color: Colors.lightGray,
-        marginBottom: 20,
-        lineHeight: 22,
-        textAlign: "center",
-    },
-
-    links: {
         flexDirection: "row",
-        flexWrap: "wrap",
+        alignItems: "center",
+        justifyContent: "space-around",
+        backgroundColor: Colors.white,
+        borderTopWidth: 1,
+        borderTopColor: Colors.border,
+        paddingVertical: 10,
+        paddingHorizontal: 8,
+        minHeight: 20,
+    },
+
+    navItem: {
+        flex: 1,
+        alignItems: "center",
         justifyContent: "center",
-        gap: 10,
-        marginBottom: 18,
+        gap: 4,
     },
 
-    linkBtn: {
-        paddingVertical: 8,
-        paddingHorizontal: 14,
-        borderRadius: 10,
-        backgroundColor: Colors.secondary + "25",
-    },
-
-    linkText: {
-        color: Colors.white,
+    label: {
+        fontSize: 12,
         fontFamily: Fonts.body,
-        fontSize: 14,
-    },
-
-    divider: {
-        height: 1,
-        width: "100%",
-        backgroundColor: Colors.white + "20",
-        marginVertical: 12,
-    },
-
-    copy: {
-        fontSize: FontSizes.small,
-        fontFamily: Fonts.body,
-        color: Colors.background,
-        textAlign: "center",
     },
 });
