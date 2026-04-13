@@ -1,11 +1,10 @@
-import { Stack } from "expo-router";
-import Providers from "../src/providers/Providers";
-
-import { useFonts } from "expo-font";
 import { Cairo_400Regular } from "@expo-google-fonts/cairo";
 import { Tajawal_400Regular } from "@expo-google-fonts/tajawal";
+import { useFonts } from "expo-font";
+import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import { Colors } from "../src/constants/constants";
+import Providers from "../src/providers/Providers";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({

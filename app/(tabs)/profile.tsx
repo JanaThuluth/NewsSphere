@@ -24,9 +24,7 @@ import { EditProfileData } from "../../src/types/user";
 export default function ProfileScreen() {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
-
   const router = useRouter();
-
   const { data: user, isLoading, error, refetch } = useUserProfile();
   const updateMutation = useUpdateProfile();
   const logoutMutation = useLogout();
@@ -108,7 +106,6 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
           <MaterialCommunityIcons
@@ -123,14 +120,12 @@ export default function ProfileScreen() {
         <View style={{ width: 28 }} />
       </View>
 
-      {/* Profile */}
       <ProfileHeader
         fullName={user.fullName}
         email={user.email}
         photoURL={user.photoURL}
       />
 
-      {/* Menu */}
       <View style={styles.menuSection}>
         {menuItems.map((item, index) => (
           <TouchableOpacity
@@ -164,7 +159,6 @@ export default function ProfileScreen() {
         ))}
       </View>
 
-      {/* Edit Profile Modal */}
       <EditProfileDialog
         visible={editModalVisible}
         onClose={() => setEditModalVisible(false)}
@@ -179,7 +173,6 @@ export default function ProfileScreen() {
         isLoading={updateMutation.isPending}
       />
 
-      {/* Logout Dialog */}
       <LogoutDialog
         visible={logoutDialogVisible}
         onCancel={() => setLogoutDialogVisible(false)}

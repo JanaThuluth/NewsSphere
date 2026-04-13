@@ -103,7 +103,6 @@ export const EditProfileDialog = ({
                         )}
                     />
 
-                    {/* Full Name */}
                     <Controller
                         control={control}
                         name="fullName"
@@ -120,7 +119,6 @@ export const EditProfileDialog = ({
                         )}
                     />
 
-                    {/* Email */}
                     <Controller
                         control={control}
                         name="email"
@@ -136,7 +134,6 @@ export const EditProfileDialog = ({
                         )}
                     />
 
-                    {/* Phone */}
                     <Controller
                         control={control}
                         name="phone"
@@ -155,7 +152,6 @@ export const EditProfileDialog = ({
                         )}
                     />
 
-                    {/* Bio */}
                     <Controller
                         control={control}
                         name="bio"
@@ -176,7 +172,6 @@ export const EditProfileDialog = ({
                         )}
                     />
 
-                    {/* Buttons */}
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
                             style={styles.cancelButton}

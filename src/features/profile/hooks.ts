@@ -28,7 +28,6 @@ export const useLogout = () => {
         mutationFn: logoutUser,
         onSuccess: () => {
             queryClient.clear();
-            // Navigation will be handled by your auth state listener
         },
     });
 };
