@@ -1,11 +1,10 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
 import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { auth } from "../../../lib/firebase";
+import React, { useRef, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -20,6 +19,7 @@ import {
   View,
 } from "react-native";
 import { Colors, Fonts, FontSizes } from "../../../constants/constants";
+import { auth } from "../../../lib/firebase";
 
 export default function LoginScreen() {
   const router = useRouter();
