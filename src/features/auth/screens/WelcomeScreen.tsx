@@ -28,15 +28,6 @@ export default function WelcomeScreen() {
               style={styles.logo}
               resizeMode="contain"
             />
-
-            <TouchableOpacity
-              style={styles.loginButton}
-              activeOpacity={0.85}
-              onPress={() => router.push("/HomePage")}
-            >
-              <Text style={styles.loginButtonText}>home page</Text>
-            </TouchableOpacity>
-
           </View>
 
           <Text style={styles.title}>Stay Connected</Text>
