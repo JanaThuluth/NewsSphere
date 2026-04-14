@@ -1,14 +1,14 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import {
+  Image,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Image,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { Colors, Fonts, FontSizes } from "../../../constants/constants";
 
 export default function WelcomeScreen() {
