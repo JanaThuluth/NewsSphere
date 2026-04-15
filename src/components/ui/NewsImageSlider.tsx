@@ -30,8 +30,10 @@ const NewsImageSlider: React.FC<Props> = ({ data, onPress }) => {
                 data={data}
                 keyExtractor={(_, index) => index.toString()}
                 horizontal
-                pagingEnabled
                 showsHorizontalScrollIndicator={false}
+                snapToInterval={width - 32 + 16}
+                decelerationRate="fast"
+                contentContainerStyle={styles.contentContainer}
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         activeOpacity={0.85}
@@ -45,6 +47,7 @@ const NewsImageSlider: React.FC<Props> = ({ data, onPress }) => {
                             style={styles.image}
                             resizeMode="cover"
                         />
+
                         <View style={styles.overlay}>
                             <Text style={styles.title} numberOfLines={2}>
                                 {item.title}
@@ -63,27 +66,35 @@ const styles = StyleSheet.create({
     container: {
         marginBottom: 14,
     },
+
+    contentContainer: {
+        paddingHorizontal: 16,
+    },
+
     card: {
-        width: width - 28,
+        width: width - 32,
         height: 220,
-        marginRight: 12,
-        borderRadius: 14,
+        marginRight: 16,
+        borderRadius: 16,
         overflow: "hidden",
         backgroundColor: Colors.white,
     },
+
     image: {
         width: "100%",
         height: "100%",
         backgroundColor: Colors.lightGray,
     },
+
     overlay: {
         position: "absolute",
         bottom: 0,
         left: 0,
         right: 0,
-        padding: 12,
-        backgroundColor: "rgba(0,0,0,0.35)",
+        padding: 14,
+        backgroundColor: "rgba(0,0,0,0.4)",
     },
+
     title: {
         color: Colors.white,
         fontSize: FontSizes.body,

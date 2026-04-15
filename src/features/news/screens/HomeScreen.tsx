@@ -151,7 +151,7 @@ const HomeScreen = ({ navigation }: any) => {
                     <Text style={styles.message}>Loading news...</Text>
                 </View>
             </View>
-        ); 
+        );
     }
 
     if (error) {

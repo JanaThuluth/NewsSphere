@@ -12,7 +12,6 @@ export default function RootLayout() {
     Tajawal_400Regular,
   });
 
-  // ⏳ Wait for fonts to load
   if (!fontsLoaded) {
     return (
       <View
