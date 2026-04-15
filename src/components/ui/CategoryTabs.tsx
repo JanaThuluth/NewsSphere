@@ -1,5 +1,6 @@
 import React from "react";
 import {
+    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -33,7 +34,14 @@ const CategoryTabs: React.FC<Props> = ({
                 isSticky && styles.stickyContainer,
             ]}
         >
-            <View style={[styles.tabsRow, isSticky && styles.stickyRow]}>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={[
+                    styles.tabsRow,
+                    isSticky && styles.stickyRow,
+                ]}
+            >
                 {categories.map((item) => {
                     const isActive = activeKey === item.key;
 
@@ -42,11 +50,13 @@ const CategoryTabs: React.FC<Props> = ({
                             key={item.key}
                             onPress={() => onChange?.(item.key)}
                             activeOpacity={0.8}
-                            style={[styles.tab, isActive && styles.activeTab]}
+                            style={[
+                                styles.tab,
+                                isActive && styles.activeTab,
+                            ]}
                         >
                             <Text
                                 numberOfLines={1}
-                                ellipsizeMode="tail"
                                 style={[
                                     styles.text,
                                     isActive && styles.activeText,
@@ -64,7 +74,7 @@ const CategoryTabs: React.FC<Props> = ({
                         </TouchableOpacity>
                     );
                 })}
-            </View>
+            </ScrollView>
         </View>
     );
 };
@@ -101,26 +111,23 @@ const styles = StyleSheet.create({
 
     tabsRow: {
         flexDirection: "row",
-        justifyContent: "space-around",
         alignItems: "center",
         paddingHorizontal: 10,
+        paddingVertical: 6,
     },
 
     stickyRow: {
-        paddingTop: 2,
         paddingHorizontal: 14,
     },
 
     tab: {
-        flex: 1,
         minHeight: 42,
-        paddingHorizontal: 8,
-        paddingTop: 10,
-        paddingBottom: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
         alignItems: "center",
         justifyContent: "center",
         borderRadius: 15,
-        marginHorizontal: 2,
+        marginHorizontal: 6,
     },
 
     activeTab: {
@@ -128,10 +135,11 @@ const styles = StyleSheet.create({
     },
 
     text: {
-        fontSize: 16,
+        fontSize: 15,
         fontFamily: Fonts.heading,
         color: "#222",
         textAlign: "center",
+        flexShrink: 0,
     },
 
     activeText: {

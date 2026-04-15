@@ -3,13 +3,13 @@ import SectionHeader from "@/src/components/ui/SectionHeader";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    NativeScrollEvent,
-    NativeSyntheticEvent,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { getTopHeadlines, searchNews } from "../../../api/newsApi";
 import Card from "../../../components/ui/Card";
@@ -40,9 +40,9 @@ type ListItem =
   | { type: "article"; article: Article };
 
 const categories: Category[] = [
-  { key: "technology", label: "Tech" },
+  { key: "technology", label: "Technology" },
   { key: "sports", label: "Sports" },
-  { key: "business", label: "Busines" },
+  { key: "business", label: "Business" },
   { key: "science", label: "Science" },
   { key: "health", label: "Health" },
 ];

@@ -37,7 +37,6 @@ export default function SettingsScreen() {
                 <View style={{ width: 24 }} />
             </View>
 
-            {/* Items */}
             <View style={styles.content}>
                 <MenuItem title="App Preferences" />
                 <MenuItem title="Notifications" />
