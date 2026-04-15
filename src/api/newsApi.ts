@@ -19,6 +19,23 @@ export const getTopHeadlines = async () => {
   }
 };
 
+export const getNewsByCategory = async (category: string) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/top-headlines`, {
+      params: {
+        country: "us",
+        category,
+        apiKey: API_KEY,
+      },
+    });
+
+    return response.data.articles;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
 export const searchNews = async (query: string) => {
   try {
     const response = await axios.get(`${BASE_URL}/everything`, {
