@@ -28,15 +28,19 @@ export const fetchUserProfile = async (): Promise<User | null> => {
 };
 
 export const updateUserProfile = async (
-    data: EditProfileData
+  data: EditProfileData
 ): Promise<void> => {
-    const currentUser = auth.currentUser;
-    if (!currentUser) throw new Error("User not authenticated");
+  const currentUser = auth.currentUser;
+  if (!currentUser) throw new Error("User not authenticated");
 
-    await updateDoc(doc(db, "users", currentUser.uid), {
-        ...data,
-        updatedAt: serverTimestamp(),
-    });
+  const cleanedData = Object.fromEntries(
+    Object.entries({
+      ...data,
+      updatedAt: serverTimestamp(),
+    }).filter(([, value]) => value !== undefined)
+  );
+
+  await updateDoc(doc(db, "users", currentUser.uid), cleanedData);
 };
 
 export const logoutUser = async (): Promise<void> => {

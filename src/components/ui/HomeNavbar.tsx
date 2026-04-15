@@ -1,16 +1,18 @@
 import React from "react";
 import {
-  Platform,
   StatusBar,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors, Fonts } from "../../constants/constants";
 
 const HomeNavbar: React.FC = () => {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, { paddingTop: insets.top }]}>
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
 
       <View style={styles.navbar}>
@@ -22,13 +24,9 @@ const HomeNavbar: React.FC = () => {
 
 export default HomeNavbar;
 
-const STATUSBAR_HEIGHT =
-  Platform.OS === "android" ? StatusBar.currentHeight ?? 0 : 0;
-
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: Colors.primary,
-    paddingTop: STATUSBAR_HEIGHT,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.18,
