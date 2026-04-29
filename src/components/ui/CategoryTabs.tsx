@@ -16,31 +16,20 @@ type Category = {
 type Props = {
     categories: Category[];
     activeKey: string;
-    onChange?: (key: string) => void;
-    isSticky?: boolean;
+    onChange: (key: string) => void;
 };
 
 const CategoryTabs: React.FC<Props> = ({
     categories,
     activeKey,
     onChange,
-    isSticky = false,
 }) => {
     return (
-        <View
-            style={[
-                styles.container,
-                !isSticky && styles.normalContainer,
-                isSticky && styles.stickyContainer,
-            ]}
-        >
+        <View style={styles.container}>
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={[
-                    styles.tabsRow,
-                    isSticky && styles.stickyRow,
-                ]}
+                contentContainerStyle={styles.tabsRow}
             >
                 {categories.map((item) => {
                     const isActive = activeKey === item.key;
@@ -48,7 +37,7 @@ const CategoryTabs: React.FC<Props> = ({
                     return (
                         <TouchableOpacity
                             key={item.key}
-                            onPress={() => onChange?.(item.key)}
+                            onPress={() => onChange(item.key)}
                             activeOpacity={0.8}
                             style={[
                                 styles.tab,
@@ -86,38 +75,13 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.white,
         borderBottomWidth: 1,
         borderBottomColor: "#EAEAEA",
-        zIndex: 999,
-        elevation: 8,
-        overflow: "hidden",
-    },
-
-    normalContainer: {
-        marginHorizontal: 14,
-        marginBottom: 10,
-        borderRadius: 15,
-    },
-
-    stickyContainer: {
-        marginHorizontal: 0,
-        marginBottom: 10,
-        borderRadius: 0,
-        paddingTop: 6,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 12,
     },
 
     tabsRow: {
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: 10,
-        paddingVertical: 6,
-    },
-
-    stickyRow: {
-        paddingHorizontal: 14,
+        paddingVertical: 2,
     },
 
     tab: {
@@ -138,8 +102,6 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontFamily: Fonts.heading,
         color: "#222",
-        textAlign: "center",
-        flexShrink: 0,
     },
 
     activeText: {

@@ -33,7 +33,7 @@ const Card: React.FC<Props> = ({ item, onPress, onFavoritePress, isFavoriteIniti
 
     const handlePress = () => {
         router.push({
-            pathname: "/HomePage",
+            pathname: "/",
             params: { id: item.id, title: item.title }
         });
         onPress(item);
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         padding: 12,
         marginBottom: 14,
+        marginHorizontal: 12,
         borderWidth: 1,
         borderColor: Colors.border,
         shadowColor: "#000",
