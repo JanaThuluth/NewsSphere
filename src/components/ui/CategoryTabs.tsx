@@ -1,161 +1,104 @@
 import React from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Colors, Fonts } from "../../constants/constants";
+import { Colors } from "../../constants/constants";
 
 type Category = {
-    key: string;
-    label: string;
+  key: string;
+  label: string;
 };
 
 type Props = {
-    categories: Category[];
-    activeKey: string;
-    onChange?: (key: string) => void;
-    isSticky?: boolean;
+  categories: Category[];
+  activeKey: string;
+  onChange: (key: string) => void;
 };
 
-const CategoryTabs: React.FC<Props> = ({
-    categories,
-    activeKey,
-    onChange,
-    isSticky = false,
-}) => {
-    return (
-        <View
-            style={[
-                styles.container,
-                !isSticky && styles.normalContainer,
-                isSticky && styles.stickyContainer,
-            ]}
-        >
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={[
-                    styles.tabsRow,
-                    isSticky && styles.stickyRow,
-                ]}
+const CategoryTabs = ({ categories, activeKey, onChange }: Props) => {
+  return (
+    <View style={styles.wrapper}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.tabsContent}
+      >
+        {categories.map((category) => {
+          const isActive = activeKey === category.key;
+
+          return (
+            <TouchableOpacity
+              key={category.key}
+              style={[styles.tab, isActive && styles.activeTab]}
+              onPress={() => onChange(category.key)}
+              activeOpacity={0.8}
             >
-                {categories.map((item) => {
-                    const isActive = activeKey === item.key;
+              <Text style={[styles.tabText, isActive && styles.activeTabText]}>
+                {category.label}
+              </Text>
 
-                    return (
-                        <TouchableOpacity
-                            key={item.key}
-                            onPress={() => onChange?.(item.key)}
-                            activeOpacity={0.8}
-                            style={[
-                                styles.tab,
-                                isActive && styles.activeTab,
-                            ]}
-                        >
-                            <Text
-                                numberOfLines={1}
-                                style={[
-                                    styles.text,
-                                    isActive && styles.activeText,
-                                ]}
-                            >
-                                {item.label}
-                            </Text>
-
-                            <View
-                                style={[
-                                    styles.underline,
-                                    isActive && styles.activeUnderline,
-                                ]}
-                            />
-                        </TouchableOpacity>
-                    );
-                })}
-            </ScrollView>
-        </View>
-    );
+              {isActive && <View style={styles.activeLine} />}
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
 };
 
 export default CategoryTabs;
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: Colors.white,
-        borderBottomWidth: 1,
-        borderBottomColor: "#EAEAEA",
-        zIndex: 999,
-        elevation: 8,
-        overflow: "hidden",
-    },
+  wrapper: {
+    width: "100%",
+    backgroundColor: Colors.white,
+    paddingTop: 8,
+    paddingBottom: 9,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E8EC",
+  },
 
-    normalContainer: {
-        marginHorizontal: 14,
-        marginBottom: 10,
-        borderRadius: 15,
-    },
+  tabsContent: {
+    paddingHorizontal: 18,
+    alignItems: "center",
+  },
 
-    stickyContainer: {
-        marginHorizontal: 0,
-        marginBottom: 10,
-        borderRadius: 0,
-        paddingTop: 6,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 12,
-    },
+ tab: {
+  minWidth: 75,
+  height: 50,
+  paddingHorizontal: 14,
+  paddingVertical: 10,
+  marginRight: 14,
+  borderRadius: 22,
+  justifyContent: "space-between",
+  alignItems: "center",
+  backgroundColor: "transparent",
+},
 
-    tabsRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-    },
+  activeTab: {
+    backgroundColor: "#E9EDF1",
+  },
 
-    stickyRow: {
-        paddingHorizontal: 14,
-    },
+  tabText: {
+    fontSize: 16,
+    color: "#2F2F2F",
+    fontFamily: "Tajawal_400Regular",
+    marginTop: 4,
+  },
 
-    tab: {
-        minHeight: 42,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: 15,
-        marginHorizontal: 6,
-    },
+  activeTabText: {
+    color: "#163B56",
+  },
 
-    activeTab: {
-        backgroundColor: Colors.primary + "18",
-    },
-
-    text: {
-        fontSize: 15,
-        fontFamily: Fonts.heading,
-        color: "#222",
-        textAlign: "center",
-        flexShrink: 0,
-    },
-
-    activeText: {
-        color: Colors.primary,
-        fontWeight: "900",
-    },
-
-    underline: {
-        marginTop: 7,
-        width: 34,
-        height: 3,
-        borderRadius: 999,
-        backgroundColor: "transparent",
-    },
-
-    activeUnderline: {
-        backgroundColor: Colors.primary,
-    },
+  activeLine: {
+    width: 52,
+    height: 5,
+    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    marginBottom: 2,
+  },
 });

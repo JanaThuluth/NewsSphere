@@ -1,152 +1,176 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Colors, Fonts } from "../../constants/constants";
+import { Colors } from "../../constants/constants";
+import { useFavorites } from "../../context/FavoritesContext";
 
 type Article = {
-    title: string;
-    description?: string | null;
-    urlToImage: string | null;
-    source?: {
-        name?: string;
-    };
-    [key: string]: any;
+  title: string;
+  description?: string | null;
+  content?: string | null;
+  url?: string;
+  urlToImage?: string | null;
+  source?: {
+    name?: string;
+  };
 };
 
 type Props = {
-    item: Article;
-    onPress: (item: Article) => void;
-    onFavoritePress?: (item: Article) => void;
-    isFavoriteInitial?: boolean;
+  item: Article;
+  onPress: () => void;
 };
 
-const Card: React.FC<Props> = ({ item, onPress, onFavoritePress, isFavoriteInitial = false }) => {
-    const router = useRouter();
-    const [isFavorite, setIsFavorite] = useState(isFavoriteInitial);
+const cleanText = (text?: string | null) => {
+  if (!text) return "";
 
-    const handlePress = () => {
-        router.push({
-            pathname: "/HomePage",
-            params: { id: item.id, title: item.title }
-        });
-        onPress(item);
-    };
+  return text
+    .replace(/<[^>]*>/g, "")
+    .replace(/\[\+\d+\schars\]/g, "")
+    .trim();
+};
 
-    const toggleFavorite = () => {
-        setIsFavorite(!isFavorite);
-        onFavoritePress?.(item);
-    };
+const getPreviewText = (item: Article) => {
+  const text = cleanText(item.description || item.content || "");
 
-    return (
-        <TouchableOpacity
-            style={styles.card}
-            activeOpacity={0.9}
-            onPress={handlePress}
-        >
-            <View style={styles.content}>
-                <Text style={styles.title} numberOfLines={3}>
-                    {item.title}
-                </Text>
+  if (!text) return "No description available";
 
-                <Text style={styles.meta} numberOfLines={1}>
-                    {item.source?.name || "News Source"}
-                </Text>
+  return text;
+};
 
-                <Text style={styles.description} numberOfLines={2}>
-                    {item.description || "No description available"}
-                </Text>
+const Card = ({ item, onPress }: Props) => {
+  const preview = getPreviewText(item);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
-                <TouchableOpacity
-                    style={styles.favoriteCircle}
-                    activeOpacity={0.7}
-                    onPress={toggleFavorite}
-                >
-                    <Ionicons
-                        name={isFavorite ? "heart" : "heart-outline"}
-                        size={22}
-                        color={isFavorite ? Colors.red : Colors.gray}
-                    />
-                </TouchableOpacity>
-            </View>
+  const saved = isFavorite(item);
 
-            <Image
-                source={{
-                    uri: item.urlToImage || "https://via.placeholder.com/300",
-                }}
-                style={styles.image}
-                resizeMode="cover"
+  const handleFavoritePress = () => {
+    toggleFavorite(item);
+  };
+
+  return (
+    <Pressable style={styles.card} onPress={onPress}>
+      <View style={styles.contentRow}>
+        <View style={styles.leftContent}>
+          <Text numberOfLines={2} style={styles.title}>
+            {item.title}
+          </Text>
+
+          <Text numberOfLines={1} style={styles.source}>
+            {item.source?.name || "Business"}
+          </Text>
+
+          <Text numberOfLines={2} style={styles.description}>
+            {preview}
+          </Text>
+
+          <TouchableOpacity
+            style={[
+              styles.favoriteButton,
+              saved && styles.favoriteButtonActive,
+            ]}
+            onPress={handleFavoritePress}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={saved ? "heart" : "heart-outline"}
+              size={23}
+              color={saved ? "#E63946" : "#97A2AE"}
             />
-        </TouchableOpacity>
-    );
+          </TouchableOpacity>
+        </View>
+
+        <Image
+          source={{
+            uri:
+              item.urlToImage ||
+              "https://via.placeholder.com/300x300.png?text=News",
+          }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      </View>
+    </Pressable>
+  );
 };
 
 export default Card;
 
 const styles = StyleSheet.create({
-    card: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: Colors.white,
-        borderRadius: 18,
-        padding: 12,
-        marginBottom: 14,
-        borderWidth: 1,
-        borderColor: Colors.border,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
-        elevation: 2,
-    },
-    content: {
-        flex: 1,
-        paddingRight: 12,
-    },
-    title: {
-        fontSize: 17,
-        lineHeight: 24,
-        fontFamily: Fonts.heading,
-        color: Colors.primary,
-        marginBottom: 4,
-    },
-    meta: {
-        fontSize: 12,
-        fontFamily: Fonts.body,
-        color: Colors.gray,
-        marginBottom: 4,
-    },
-    description: {
-        fontSize: 13,
-        lineHeight: 18,
-        fontFamily: Fonts.body,
-        color: Colors.gray,
-        marginBottom: 10,
-    },
-    image: {
-        width: 100,
-        height: 100,
-        borderRadius: 14,
-        backgroundColor: Colors.lightGray,
-    },
-    favoriteCircle: {
-        alignSelf: "flex-start",
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: "#F8F8F8",
-        justifyContent: "center",
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 1,
-    },
+  card: {
+    backgroundColor: Colors.white,
+    marginHorizontal: 16,
+    marginBottom: 17,
+    borderRadius: 26,
+    padding: 13,
+    minHeight: 145,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+
+  contentRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+
+  leftContent: {
+    flex: 1,
+    paddingRight: 14,
+    minHeight: 85,
+    justifyContent: "space-between",
+  },
+
+  title: {
+    fontSize: 18,
+    lineHeight: 28,
+    color: "#163B56",
+    fontFamily: "Cairo_400Regular",
+    marginBottom: 5,
+  },
+
+  source: {
+    fontSize: 13,
+    color: "#8C939C",
+    fontFamily: "Tajawal_400Regular",
+    marginBottom: 5,
+  },
+
+  description: {
+    fontSize: 13,
+    lineHeight: 20,
+    color: "#A0A7B0",
+    fontFamily: "Tajawal_400Regular",
+    marginBottom: 8,
+  },
+
+  image: {
+    width: 125,
+    height: 120,
+    borderRadius: 22,
+    marginTop: 6,
+  },
+
+  favoriteButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#F5F7F9",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 4,
+  },
+
+  favoriteButtonActive: {
+    backgroundColor: "#FCEEEF",
+  },
 });

@@ -4,6 +4,7 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import { Colors } from "../src/constants/constants";
+import { FavoritesProvider } from "../src/context/FavoritesContext";
 import Providers from "../src/providers/Providers";
 
 export default function RootLayout() {
@@ -29,7 +30,9 @@ export default function RootLayout() {
 
   return (
     <Providers>
-      <Stack screenOptions={{ headerShown: false }} />
+      <FavoritesProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </FavoritesProvider>
     </Providers>
   );
 }

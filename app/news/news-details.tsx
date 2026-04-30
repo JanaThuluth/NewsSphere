@@ -1,9 +1,3 @@
-import { Text, View } from "react-native";
+import NewsDetailsScreen from "@/src/features/news/screens/NewsDetailsScreen";
 
-export default function NewsDetails() {
-  return (
-    <View>
-      <Text>News Details Screen</Text>
-    </View>
-  );
-}
+export default NewsDetailsScreen;
