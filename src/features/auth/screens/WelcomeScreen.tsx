@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
+  ActivityIndicator,
   Image,
   SafeAreaView,
   StatusBar,
@@ -10,9 +11,28 @@ import {
   View,
 } from "react-native";
 import { Colors, Fonts, FontSizes } from "../../../constants/constants";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/(tabs)/home");
+    }
+  }, [loading, user, router]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.white} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -62,6 +82,12 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: Colors.primary,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: Colors.primary,
   },
   container: {
