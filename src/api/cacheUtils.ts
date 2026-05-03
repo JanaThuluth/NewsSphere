@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CACHE_DURATION = 15 * 60 * 1000; // 15 دقائق
+const CACHE_DURATION = 15 * 60 * 1000;
 
 interface CacheData {
     data: any;
