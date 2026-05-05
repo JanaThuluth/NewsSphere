@@ -223,7 +223,7 @@ export default function LoginScreen() {
           <View style={styles.contentWrapper}>
             <TouchableOpacity
               style={styles.backButton}
-              onPress={() => router.back()}
+              onPress={() => router.replace("/welcome")}
               activeOpacity={0.8}
               disabled={isAnyLoading}
             >
