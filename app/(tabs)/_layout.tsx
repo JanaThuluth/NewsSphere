@@ -1,8 +1,40 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useQueryClient } from "@tanstack/react-query";
+import * as Notifications from "expo-notifications";
 import { Tabs } from "expo-router";
+import { useEffect } from "react";
 import { Colors } from "../../src/constants/constants";
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
 export default function TabsLayout() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      console.log("Notification Received while app is open:", notification);
+
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    });
+
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log("User clicked on the notification:", response);
+    });
+
+    return () => {
+      notificationListener.remove();
+      responseListener.remove();
+    };
+  }, []);
+
   return (
     <Tabs
       screenOptions={{
@@ -46,11 +78,11 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="search"
+        name="saved"
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons
-              name={focused ? "search" : "search-outline"}
+              name={focused ? "bookmark" : "bookmark-outline"}
               size={24}
               color="white"
               style={{
@@ -63,11 +95,11 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="saved"
+        name="notifications"
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons
-              name={focused ? "bookmark" : "bookmark-outline"}
+              name={focused ? "notifications" : "notifications-outline"}
               size={24}
               color="white"
               style={{

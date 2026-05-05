@@ -1,15 +1,16 @@
 import CategoryTabs from "@/src/components/ui/CategoryTabs";
+import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
-
 import { getTopHeadlines, searchNews } from "../../../api/newsApi";
-
 import Card from "../../../components/ui/Card";
 import HomeNavbar from "../../../components/ui/HomeNavbar";
 import NewsImageSlider from "../../../components/ui/NewsImageSlider";
 import TrendingSlider from "../../../components/ui/TrendingSlider";
 import { Colors } from "../../../constants/constants";
+import { auth } from "../../../lib/firebase";
+import { createNotification } from "../../notification/notificationService";
 
 type Article = {
   title: string;
@@ -52,7 +53,7 @@ const HomeScreen = () => {
   const [sliderNews, setSliderNews] = useState<Article[]>([]);
 
   const [activeCategory, setActiveCategory] = useState("all");
-
+  const queryClient = useQueryClient();
   useEffect(() => {
     const load = async () => {
       try {
@@ -66,9 +67,36 @@ const HomeScreen = () => {
           }),
         ]);
 
-        setSliderNews(Array.isArray(top) ? top : []);
-        setTrendingNews(Array.isArray(trending) ? trending : []);
-        setGeneralNews(Array.isArray(general) ? general : []);
+        const sliderData = Array.isArray(top) ? top : [];
+        const trendingData = Array.isArray(trending) ? trending : [];
+        const generalData = Array.isArray(general) ? general : [];
+        setSliderNews(sliderData);
+        setTrendingNews(trendingData);
+        setGeneralNews(generalData);
+        if (auth.currentUser) {
+          const allAvailableNews = [
+            ...sliderData,
+            ...trendingNews,
+            ...generalData
+          ].filter((n) => n.title && n.urlToImage);
+
+          if (allAvailableNews.length > 0) {
+            const randomIndex = Math.floor(Math.random() * allAvailableNews.length);
+            const randomNews = allAvailableNews[randomIndex];
+
+            await createNotification({
+              title: " Breaking: " + randomNews.title,
+              description: randomNews.description || "",
+              message: randomNews.description || "Tap to read the full story and stay updated.",
+              imageUrl: randomNews.urlToImage || "",
+              articleId: randomNews.url || randomNews.title,
+              sourceName: randomNews.source?.name || "News App",
+              publishedAt: randomNews.publishedAt || new Date().toISOString(),
+            });
+
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+          }
+        }
       } catch (error) {
         console.log("Error loading home news:", error);
       } finally {
@@ -93,8 +121,6 @@ const HomeScreen = () => {
       },
     });
   };
-
-
 
   const handleCategoryChange = async (key: string) => {
     setActiveCategory(key);

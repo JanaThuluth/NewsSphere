@@ -79,9 +79,9 @@ const Card = ({ item, onPress }: Props) => {
             activeOpacity={0.8}
           >
             <Ionicons
-              name={saved ? "heart" : "heart-outline"}
+              name={saved ? "bookmark" : "bookmark-outline"}
               size={23}
-              color={saved ? "#E63946" : "#97A2AE"}
+              color={saved ? Colors.primary : "#97A2AE"}
             />
           </TouchableOpacity>
         </View>
@@ -171,6 +171,6 @@ const styles = StyleSheet.create({
   },
 
   favoriteButtonActive: {
-    backgroundColor: "#FCEEEF",
+    backgroundColor: "#E8F0F6",
   },
 });

@@ -1,39 +1,36 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors, Fonts, FontSizes } from "../../src/constants/constants";
 import { EditProfileDialog } from "../../src/features/profile/components/EditProfileDialog";
 import { LogoutDialog } from "../../src/features/profile/components/LogoutDialog";
 import { ProfileHeader } from "../../src/features/profile/components/ProfileHeader";
 import { ProfileMenuItem } from "../../src/features/profile/components/ProfileMenuItem";
-
 import {
   useLogout,
   useUpdateProfile,
   useUserProfile,
 } from "../../src/features/profile/hooks";
-
 import { EditProfileData } from "../../src/types/user";
 
 export default function ProfileScreen() {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
-
   const router = useRouter();
-
+  const insets = useSafeAreaInsets();
   const { data: user, isLoading, error, refetch } = useUserProfile();
   const updateMutation = useUpdateProfile();
   const logoutMutation = useLogout();
-
   const handleEditProfile = async (data: EditProfileData) => {
     try {
       await updateMutation.mutateAsync(data);
@@ -61,9 +58,9 @@ export default function ProfileScreen() {
     },
     {
       icon: "bell-outline",
-      text: "My News",
+      text: "Notifications",
       color: Colors.secondary,
-      onPress: () => router.push("/create-news"),
+      onPress: () => router.push("/notifications"),
     },
     {
       icon: "bookmark-outline",
@@ -89,7 +86,7 @@ export default function ProfileScreen() {
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -107,39 +104,44 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
-          <MaterialCommunityIcons
-            name="arrow-left"
-            size={28}
-            color={Colors.primary}
-          />
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <View style={[styles.headerWrapper, { paddingTop: insets.top }]}>
+        <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
 
-        <Text style={styles.title}>My Profile</Text>
+        <View style={styles.navbar}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.navButton}
+          >
+            <Ionicons name="arrow-back" size={26} color={Colors.white} />
+          </TouchableOpacity>
 
-        <View style={{ width: 28 }} />
+          <Text style={styles.headerTitle}>My Profile</Text>
+
+          <View style={styles.navButton} />
+        </View>
       </View>
 
-      <ProfileHeader
-        fullName={user.fullName}
-        email={user.email}
-        photoURL={user.photoURL}
-      />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <ProfileHeader
+          fullName={user.fullName}
+          email={user.email}
+          photoURL={user.photoURL}
+        />
 
-      <View style={styles.menuSection}>
-        {menuItems.map((item) => (
-          <ProfileMenuItem
-            key={item.text}
-            icon={item.icon}
-            text={item.text}
-            color={item.color}
-            isDanger={item.isDanger}
-            onPress={item.onPress}
-          />
-        ))}
-      </View>
+        <View style={styles.menuSection}>
+          {menuItems.map((item) => (
+            <ProfileMenuItem
+              key={item.text}
+              icon={item.icon}
+              text={item.text}
+              color={item.color}
+              isDanger={item.isDanger}
+              onPress={item.onPress}
+            />
+          ))}
+        </View>
+      </ScrollView>
 
       <EditProfileDialog
         visible={editModalVisible}
@@ -161,7 +163,7 @@ export default function ProfileScreen() {
         onConfirm={handleLogout}
         isLoading={logoutMutation.isPending}
       />
-    </ScrollView>
+    </View>
   );
 }
 
@@ -177,23 +179,41 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  header: {
+  headerWrapper: {
+    backgroundColor: Colors.primary,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    zIndex: 10,
+  },
+
+  navbar: {
+    height: 58,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    marginBottom: 20,
+    paddingHorizontal: 16,
   },
 
-  title: {
-    fontSize: FontSizes.heading,
+  navButton: {
+    width: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  headerTitle: {
+    fontSize: 20,
+    color: Colors.white,
     fontFamily: Fonts.heading,
+    fontWeight: "bold",
+    letterSpacing: 0.5,
   },
 
   menuSection: {
     paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingTop: 20,
   },
 
   errorText: {

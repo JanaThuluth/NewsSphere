@@ -34,10 +34,10 @@ export default function NewsDetailsScreen() {
 
   const formattedDate = publishedAt
     ? new Date(String(publishedAt)).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
     : "Unknown date";
 
   const cleanText = (text: unknown) => {
@@ -134,9 +134,9 @@ export default function NewsDetailsScreen() {
                 activeOpacity={0.8}
               >
                 <Ionicons
-                  name={saved ? "heart" : "heart-outline"}
+                  name={saved ? "bookmark" : "bookmark-outline"}
                   size={24}
-                  color={saved ? "#E63946" : "#97A2AE"}
+                  color={saved ? Colors.primary : "#97A2AE"}
                 />
               </TouchableOpacity>
             </View>
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
 
   favoriteButtonActive: {
-    backgroundColor: "#FCEEEF",
+    backgroundColor: "#E8F0F6",
   },
 
   title: {
