@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
   createContext,
   ReactNode,
@@ -6,67 +5,58 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { Alert } from "react-native";
+import { useAuth } from "./AuthContext";
+import {
+  getArticleId,
+  getSavedArticles,
+  removeSavedArticle,
+  saveArticle,
+  SavedArticle,
+} from "../features/saved/storage";
 
-export type Article = {
-  title: string;
-  description?: string | null;
-  content?: string | null;
-  urlToImage?: string | null;
-  image?: string | null;
-  url?: string;
-  publishedAt?: string;
-  source?: {
-    name?: string;
-  };
-  [key: string]: any;
-};
+export type Article = SavedArticle;
 
 type FavoritesContextType = {
   favorites: Article[];
+  loading: boolean;
   isFavorite: (article: Article) => boolean;
-  toggleFavorite: (article: Article) => void;
+  toggleFavorite: (article: Article) => Promise<void>;
 };
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(
   undefined
 );
 
-const FAVORITES_KEY = "favorites_news";
-
-const getArticleId = (article: Article) => {
-  return article.url || article.title;
-};
-
 export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
+  const { user, loading: authLoading } = useAuth();
+
   const [favorites, setFavorites] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const loadFavorites = async () => {
-      try {
-        const storedFavorites = await AsyncStorage.getItem(FAVORITES_KEY);
+      if (authLoading) return;
 
-        if (storedFavorites) {
-          setFavorites(JSON.parse(storedFavorites));
-        }
+      if (!user) {
+        setFavorites([]);
+        return;
+      }
+
+      try {
+        setLoading(true);
+
+        const savedArticles = await getSavedArticles(user.uid);
+        setFavorites(savedArticles);
       } catch (error) {
-        console.log("Error loading favorites:", error);
+        console.log("Error loading saved articles:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     loadFavorites();
-  }, []);
-
-  useEffect(() => {
-    const saveFavorites = async () => {
-      try {
-        await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-      } catch (error) {
-        console.log("Error saving favorites:", error);
-      }
-    };
-
-    saveFavorites();
-  }, [favorites]);
+  }, [user, authLoading]);
 
   const isFavorite = (article: Article) => {
     const articleId = getArticleId(article);
@@ -74,25 +64,44 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
     return favorites.some((fav) => getArticleId(fav) === articleId);
   };
 
-  const toggleFavorite = (article: Article) => {
+  const toggleFavorite = async (article: Article) => {
+    if (!user) {
+      Alert.alert("Login required", "Please login to save articles.");
+      return;
+    }
+
     const articleId = getArticleId(article);
 
-    setFavorites((prevFavorites) => {
-      const alreadyFavorite = prevFavorites.some(
-        (fav) => getArticleId(fav) === articleId
-      );
+    const alreadyFavorite = favorites.some(
+      (fav) => getArticleId(fav) === articleId
+    );
 
+    try {
       if (alreadyFavorite) {
-        return prevFavorites.filter((fav) => getArticleId(fav) !== articleId);
-      }
+        setFavorites((prev) =>
+          prev.filter((fav) => getArticleId(fav) !== articleId)
+        );
 
-      return [...prevFavorites, article];
-    });
+        await removeSavedArticle(user.uid, article);
+      } else {
+        setFavorites((prev) => [...prev, article]);
+
+        await saveArticle(user.uid, article);
+      }
+    } catch (error) {
+      console.log("Error toggling favorite:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    }
   };
 
   return (
     <FavoritesContext.Provider
-      value={{ favorites, isFavorite, toggleFavorite }}
+      value={{
+        favorites,
+        loading,
+        isFavorite,
+        toggleFavorite,
+      }}
     >
       {children}
     </FavoritesContext.Provider>
