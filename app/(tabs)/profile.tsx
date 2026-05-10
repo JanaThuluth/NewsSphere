@@ -11,7 +11,8 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Colors, Fonts, FontSizes } from "../../src/constants/constants";
+import { useTheme } from "../../src/constants/ThemeContext";
+import { Fonts, FontSizes } from "../../src/constants/constants";
 import { EditProfileDialog } from "../../src/features/profile/components/EditProfileDialog";
 import { LogoutDialog } from "../../src/features/profile/components/LogoutDialog";
 import { ProfileHeader } from "../../src/features/profile/components/ProfileHeader";
@@ -28,9 +29,12 @@ export default function ProfileScreen() {
   const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { theme } = useTheme();
+
   const { data: user, isLoading, error, refetch } = useUserProfile();
   const updateMutation = useUpdateProfile();
   const logoutMutation = useLogout();
+
   const handleEditProfile = async (data: EditProfileData) => {
     try {
       await updateMutation.mutateAsync(data);
@@ -53,31 +57,31 @@ export default function ProfileScreen() {
     {
       icon: "pencil",
       text: "Edit Profile",
-      color: Colors.secondary,
+      color: theme.secondary,
       onPress: () => setEditModalVisible(true),
     },
     {
       icon: "bell-outline",
       text: "Notifications",
-      color: Colors.secondary,
+      color: theme.secondary,
       onPress: () => router.push("/notifications"),
     },
     {
       icon: "bookmark-outline",
       text: "Saved News",
-      color: Colors.secondary,
+      color: theme.secondary,
       onPress: () => router.push("/saved"),
     },
     {
       icon: "cog-outline",
       text: "Settings",
-      color: Colors.secondary,
+      color: theme.secondary,
       onPress: () => router.push("/settings"),
     },
     {
       icon: "logout",
       text: "Log Out",
-      color: Colors.red,
+      color: theme.red,
       isDanger: true,
       onPress: () => setLogoutDialogVisible(true),
     },
@@ -85,35 +89,35 @@ export default function ProfileScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+      <View style={[styles.centerContainer, { backgroundColor: theme.background }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
       </View>
     );
   }
 
   if (error || !user) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>Failed to load profile</Text>
+      <View style={[styles.centerContainer, { backgroundColor: theme.background }]}>
+        <Text style={[styles.errorText, { color: theme.red }]}>Failed to load profile</Text>
 
         <TouchableOpacity onPress={() => refetch()} style={{ marginTop: 10 }}>
-          <Text style={{ color: Colors.primary }}>Try Again</Text>
+          <Text style={{ color: theme.primary }}>Try Again</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.headerWrapper, { paddingTop: insets.top }]}>
-        <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.headerWrapper, { paddingTop: insets.top, backgroundColor: theme.primary }]}>
+        <StatusBar backgroundColor={theme.primary} barStyle="light-content" />
 
         <View style={styles.navbar}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.navButton}
           >
-            <Ionicons name="arrow-back" size={26} color={Colors.white} />
+            <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>My Profile</Text>
@@ -170,7 +174,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
 
   centerContainer: {
@@ -180,7 +183,6 @@ const styles = StyleSheet.create({
   },
 
   headerWrapper: {
-    backgroundColor: Colors.primary,
     elevation: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
@@ -205,7 +207,7 @@ const styles = StyleSheet.create({
 
   headerTitle: {
     fontSize: 20,
-    color: Colors.white,
+    color: "#FFFFFF",
     fontFamily: Fonts.heading,
     fontWeight: "bold",
     letterSpacing: 0.5,
@@ -218,7 +220,6 @@ const styles = StyleSheet.create({
 
   errorText: {
     fontSize: FontSizes.subheading,
-    color: Colors.red,
     fontFamily: Fonts.body,
     textAlign: "center",
   },

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Colors } from "../../constants/constants";
+import { useTheme } from "../../constants/ThemeContext";
 
 type Category = {
   key: string;
@@ -20,8 +20,10 @@ type Props = {
 };
 
 const CategoryTabs = ({ categories, activeKey, onChange }: Props) => {
+  const { theme, isDark } = useTheme();
+
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, { backgroundColor: theme.background, borderBottomColor: theme.border }]}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -33,15 +35,26 @@ const CategoryTabs = ({ categories, activeKey, onChange }: Props) => {
           return (
             <TouchableOpacity
               key={category.key}
-              style={[styles.tab, isActive && styles.activeTab]}
+              style={[
+                styles.tab,
+                isActive && { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "#E9EDF1" }
+              ]}
               onPress={() => onChange(category.key)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.tabText, isActive && styles.activeTabText]}>
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: isDark ? "#FFFFFF" : "#2F2F2F" },
+                  isActive && { color: isDark ? "#FFFFFF" : "#163B56", fontWeight: "bold" }
+                ]}
+              >
                 {category.label}
               </Text>
 
-              {isActive && <View style={styles.activeLine} />}
+              {isActive && (
+                <View style={[styles.activeLine, { backgroundColor: theme.primary }]} />
+              )}
             </TouchableOpacity>
           );
         })}
@@ -55,11 +68,9 @@ export default CategoryTabs;
 const styles = StyleSheet.create({
   wrapper: {
     width: "100%",
-    backgroundColor: Colors.white,
     paddingTop: 8,
     paddingBottom: 9,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E8EC",
   },
 
   tabsContent: {
@@ -67,38 +78,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
- tab: {
-  minWidth: 75,
-  height: 50,
-  paddingHorizontal: 14,
-  paddingVertical: 10,
-  marginRight: 14,
-  borderRadius: 22,
-  justifyContent: "space-between",
-  alignItems: "center",
-  backgroundColor: "transparent",
-},
-
-  activeTab: {
-    backgroundColor: "#E9EDF1",
+  tab: {
+    minWidth: 75,
+    height: 50,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginRight: 14,
+    borderRadius: 22,
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 
   tabText: {
     fontSize: 16,
-    color: "#2F2F2F",
     fontFamily: "Tajawal_400Regular",
     marginTop: 4,
-  },
-
-  activeTabText: {
-    color: "#163B56",
   },
 
   activeLine: {
     width: 52,
     height: 5,
     borderRadius: 8,
-    backgroundColor: Colors.primary,
     marginBottom: 2,
   },
 });

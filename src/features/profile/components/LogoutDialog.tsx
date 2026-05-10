@@ -6,7 +6,8 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { Colors, Fonts, FontSizes } from "../../../constants/constants";
+import { useTheme } from "../../../constants/ThemeContext";
+import { Fonts, FontSizes } from "../../../constants/constants";
 
 interface LogoutDialogProps {
     visible: boolean;
@@ -21,6 +22,8 @@ export const LogoutDialog = ({
     onConfirm,
     isLoading = false,
 }: LogoutDialogProps) => {
+    const { theme } = useTheme();
+
     const handleCancel = () => {
         if (!isLoading) onCancel();
     };
@@ -32,34 +35,43 @@ export const LogoutDialog = ({
                 activeOpacity={1}
                 onPress={handleCancel}
             >
-                <TouchableOpacity style={styles.dialog} activeOpacity={1}>
-                    <Text style={styles.title}>Logout</Text>
+                <TouchableOpacity
+                    style={[styles.dialog, { backgroundColor: theme.background }]}
+                    activeOpacity={1}
+                >
+                    <Text style={[styles.title, { color: theme.primary }]}>Logout</Text>
 
-                    <Text style={styles.message}>
+                    <Text style={[styles.message, { color: theme.gray }]}>
                         Are you sure you want to log out?
                     </Text>
 
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
-                            style={styles.cancelButton}
+                            style={[
+                                styles.cancelButton,
+                                { borderColor: theme.border, backgroundColor: theme.white }
+                            ]}
                             onPress={handleCancel}
                             disabled={isLoading}
                         >
-                            <Text style={styles.buttonText}>Cancel</Text>
+                            <Text style={[styles.buttonText, { color: theme.primary }]}>Cancel</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             style={[
                                 styles.confirmButton,
+                                { backgroundColor: theme.red },
                                 isLoading && styles.buttonDisabled,
                             ]}
                             onPress={onConfirm}
                             disabled={isLoading}
                         >
                             {isLoading ? (
-                                <ActivityIndicator color={Colors.white} />
+                                <ActivityIndicator color="#FFFFFF" />
                             ) : (
-                                <Text style={styles.confirmButtonText}>Yes, Logout</Text>
+                                <Text style={[styles.confirmButtonText, { color: "#FFFFFF" }]}>
+                                    Yes, Logout
+                                </Text>
                             )}
                         </TouchableOpacity>
                     </View>
@@ -72,38 +84,36 @@ export const LogoutDialog = ({
 const styles = StyleSheet.create({
     backdrop: {
         flex: 1,
-        backgroundColor: "rgba(0,0,0,0.5)",
+        backgroundColor: "rgba(0,0,0,0.6)",
         justifyContent: "center",
         alignItems: "center",
     },
 
     dialog: {
-        backgroundColor: Colors.white,
         borderRadius: 16,
         paddingVertical: 24,
         paddingHorizontal: 20,
-        width: "80%",
-        maxWidth: 320,
-
+        width: "85%",
+        maxWidth: 340,
         shadowColor: "#000",
-        shadowOpacity: 0.2,
-        shadowRadius: 10,
-        elevation: 6,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+        elevation: 8,
     },
 
     title: {
         fontSize: FontSizes.subheading,
         fontFamily: Fonts.heading,
-        color: Colors.primary,
+        fontWeight: "bold",
         marginBottom: 8,
     },
 
     message: {
         fontSize: FontSizes.body,
         fontFamily: Fonts.body,
-        color: Colors.gray,
         marginBottom: 24,
-        lineHeight: 20,
+        lineHeight: 22,
     },
 
     buttonContainer: {
@@ -114,35 +124,33 @@ const styles = StyleSheet.create({
     cancelButton: {
         flex: 1,
         borderWidth: 1,
-        borderColor: Colors.border,
-        borderRadius: 8,
+        borderRadius: 10,
         paddingVertical: 12,
         alignItems: "center",
-        backgroundColor: Colors.white,
+        justifyContent: "center",
     },
 
     confirmButton: {
         flex: 1,
-        backgroundColor: Colors.red,
-        borderRadius: 8,
+        borderRadius: 10,
         paddingVertical: 12,
         alignItems: "center",
         justifyContent: "center",
     },
 
     buttonDisabled: {
-        opacity: 0.6,
+        opacity: 0.5,
     },
 
     confirmButtonText: {
-        color: Colors.white,
         fontSize: FontSizes.body,
         fontFamily: Fonts.body,
+        fontWeight: "600",
     },
 
     buttonText: {
         fontSize: FontSizes.body,
         fontFamily: Fonts.body,
-        color: Colors.primary,
+        fontWeight: "600",
     },
 });

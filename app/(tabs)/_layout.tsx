@@ -4,6 +4,7 @@ import * as Notifications from "expo-notifications";
 import { Tabs } from "expo-router";
 import { useEffect, useState } from "react";
 import { Colors } from "../../src/constants/constants";
+import { useNotifications } from "../../src/constants/NotificationContext";
 import { getNotifications } from "../../src/features/notification/notificationService";
 
 Notifications.setNotificationHandler({
@@ -18,6 +19,7 @@ Notifications.setNotificationHandler({
 
 export default function TabsLayout() {
   const queryClient = useQueryClient();
+  const { notificationsEnabled } = useNotifications();
 
   const { data: notifications } = useQuery({
     queryKey: ["notifications"],
@@ -29,25 +31,36 @@ export default function TabsLayout() {
   useEffect(() => {
     if (notifications) {
       const unreadExists = notifications.some((n: any) => n.isRead === false);
-      setHasNewNotification(unreadExists);
+
+      if (notificationsEnabled) {
+        setHasNewNotification(unreadExists);
+      } else {
+        setHasNewNotification(false);
+      }
     }
-  }, [notifications]);
+  }, [notifications, notificationsEnabled]);
 
   useEffect(() => {
-    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-      setHasNewNotification(true);
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    });
+    const notificationListener =
+      Notifications.addNotificationReceivedListener(() => {
+        if (notificationsEnabled) {
+          setHasNewNotification(true);
+        }
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      });
 
-    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-      setHasNewNotification(false);
-    });
+    const responseListener =
+      Notifications.addNotificationResponseReceivedListener(() => {
+        setHasNewNotification(false);
+      });
 
     return () => {
       notificationListener.remove();
       responseListener.remove();
     };
-  }, [queryClient]);
+  }, [queryClient, notificationsEnabled]);
+
+  const showBadge = hasNewNotification && notificationsEnabled;
 
   return (
     <Tabs
@@ -115,13 +128,13 @@ export default function TabsLayout() {
           },
         }}
         options={{
-          tabBarBadge: hasNewNotification ? "" : undefined,
+          tabBarBadge: showBadge ? "" : undefined,
           tabBarBadgeStyle: {
             backgroundColor: Colors.red,
             minWidth: 10,
             height: 10,
             borderRadius: 5,
-            marginTop: 4
+            marginTop: 4,
           },
           tabBarIcon: ({ focused }) => (
             <Ionicons

@@ -1,4 +1,5 @@
 import CategoryTabs from "@/src/components/ui/CategoryTabs";
+import { useTheme } from "@/src/constants/ThemeContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -8,7 +9,6 @@ import Card from "../../../components/ui/Card";
 import HomeNavbar from "../../../components/ui/HomeNavbar";
 import NewsImageSlider from "../../../components/ui/NewsImageSlider";
 import TrendingSlider from "../../../components/ui/TrendingSlider";
-import { Colors } from "../../../constants/constants";
 import { auth } from "../../../lib/firebase";
 import { createNotification } from "../../notification/notificationService";
 
@@ -45,6 +45,8 @@ const categories: Category[] = [
 ];
 
 const HomeScreen = () => {
+  const { theme } = useTheme();
+
   const [loading, setLoading] = useState(true);
   const [categoryLoading, setCategoryLoading] = useState(false);
 
@@ -54,6 +56,7 @@ const HomeScreen = () => {
 
   const [activeCategory, setActiveCategory] = useState("all");
   const queryClient = useQueryClient();
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -70,31 +73,41 @@ const HomeScreen = () => {
         const sliderData = Array.isArray(top) ? top : [];
         const trendingData = Array.isArray(trending) ? trending : [];
         const generalData = Array.isArray(general) ? general : [];
+
         setSliderNews(sliderData);
         setTrendingNews(trendingData);
         setGeneralNews(generalData);
+
         if (auth.currentUser) {
           const allAvailableNews = [
             ...sliderData,
-            ...trendingNews,
-            ...generalData
+            ...trendingData,
+            ...generalData,
           ].filter((n) => n.title && n.urlToImage);
 
           if (allAvailableNews.length > 0) {
-            const randomIndex = Math.floor(Math.random() * allAvailableNews.length);
+            const randomIndex = Math.floor(
+              Math.random() * allAvailableNews.length
+            );
+
             const randomNews = allAvailableNews[randomIndex];
 
             await createNotification({
               title: " Breaking: " + randomNews.title,
               description: randomNews.description || "",
-              message: randomNews.description || "Tap to read the full story and stay updated.",
+              message:
+                randomNews.description ||
+                "Tap to read the full story and stay updated.",
               imageUrl: randomNews.urlToImage || "",
               articleId: randomNews.url || randomNews.title,
               sourceName: randomNews.source?.name || "News App",
-              publishedAt: randomNews.publishedAt || new Date().toISOString(),
+              publishedAt:
+                randomNews.publishedAt || new Date().toISOString(),
             });
 
-            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+            queryClient.invalidateQueries({
+              queryKey: ["notifications"],
+            });
           }
         }
       } catch (error) {
@@ -173,10 +186,12 @@ const HomeScreen = () => {
     return result;
   }, [topNewsList, bottomNewsList]);
 
+  const styles = createStyles(theme);
+
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <ActivityIndicator size="large" color={theme.primary} />
       </View>
     );
   }
@@ -193,7 +208,7 @@ const HomeScreen = () => {
 
       {categoryLoading && (
         <View style={styles.categoryLoader}>
-          <ActivityIndicator size="small" color={Colors.primary} />
+          <ActivityIndicator size="small" color={theme.primary} />
         </View>
       )}
 
@@ -235,26 +250,27 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
 
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: Colors.background,
-  },
+    center: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: theme.background,
+    },
 
-  list: {
-    paddingTop: 14,
-    paddingBottom: 80,
-  },
+    list: {
+      paddingTop: 14,
+      paddingBottom: 80,
+    },
 
-  categoryLoader: {
-    paddingVertical: 8,
-    alignItems: "center",
-  },
-});
+    categoryLoader: {
+      paddingVertical: 8,
+      alignItems: "center",
+    },
+  });

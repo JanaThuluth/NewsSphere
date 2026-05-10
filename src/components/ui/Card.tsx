@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Colors } from "../../constants/constants";
+import { useTheme } from "../../constants/ThemeContext";
 import { useFavorites } from "../../context/FavoritesContext";
 
 type Article = {
@@ -47,6 +47,7 @@ const getPreviewText = (item: Article) => {
 const Card = ({ item, onPress }: Props) => {
   const preview = getPreviewText(item);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { theme } = useTheme();
 
   const saved = isFavorite(item);
 
@@ -55,25 +56,29 @@ const Card = ({ item, onPress }: Props) => {
   };
 
   return (
-    <Pressable style={styles.card} onPress={onPress}>
+    <Pressable
+      style={[styles.card, { backgroundColor: theme.white }]}
+      onPress={onPress}
+    >
       <View style={styles.contentRow}>
         <View style={styles.leftContent}>
-          <Text numberOfLines={2} style={styles.title}>
+          <Text numberOfLines={2} style={[styles.title, { color: theme.primary }]}>
             {item.title}
           </Text>
 
-          <Text numberOfLines={1} style={styles.source}>
+          <Text numberOfLines={1} style={[styles.source, { color: theme.gray }]}>
             {item.source?.name || "Business"}
           </Text>
 
-          <Text numberOfLines={2} style={styles.description}>
+          <Text numberOfLines={2} style={[styles.description, { color: theme.gray }]}>
             {preview}
           </Text>
 
           <TouchableOpacity
             style={[
               styles.favoriteButton,
-              saved && styles.favoriteButtonActive,
+              { backgroundColor: theme.lightGray },
+              saved && { backgroundColor: theme.secondary + '20' },
             ]}
             onPress={handleFavoritePress}
             activeOpacity={0.8}
@@ -81,7 +86,7 @@ const Card = ({ item, onPress }: Props) => {
             <Ionicons
               name={saved ? "bookmark" : "bookmark-outline"}
               size={23}
-              color={saved ? Colors.primary : "#97A2AE"}
+              color={saved ? theme.primary : theme.gray}
             />
           </TouchableOpacity>
         </View>
@@ -92,7 +97,7 @@ const Card = ({ item, onPress }: Props) => {
               item.urlToImage ||
               "https://via.placeholder.com/300x300.png?text=News",
           }}
-          style={styles.image}
+          style={[styles.image, { backgroundColor: theme.lightGray }]}
           resizeMode="cover"
         />
       </View>
@@ -104,7 +109,6 @@ export default Card;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.white,
     marginHorizontal: 16,
     marginBottom: 17,
     borderRadius: 26,
@@ -133,14 +137,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     lineHeight: 28,
-    color: "#163B56",
     fontFamily: "Cairo_400Regular",
     marginBottom: 5,
   },
 
   source: {
     fontSize: 13,
-    color: "#8C939C",
     fontFamily: "Tajawal_400Regular",
     marginBottom: 5,
   },
@@ -148,7 +150,6 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 13,
     lineHeight: 20,
-    color: "#A0A7B0",
     fontFamily: "Tajawal_400Regular",
     marginBottom: 8,
   },
@@ -164,13 +165,8 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#F5F7F9",
     justifyContent: "center",
     alignItems: "center",
     marginTop: 4,
-  },
-
-  favoriteButtonActive: {
-    backgroundColor: "#E8F0F6",
   },
 });

@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Colors, FontSizes, Fonts } from "../../../constants/constants";
+import { useTheme } from "../../../constants/ThemeContext";
+import { FontSizes, Fonts } from "../../../constants/constants";
 
 type Props = {
     icon: string;
@@ -13,13 +14,27 @@ type Props = {
 export const ProfileMenuItem = ({
     icon,
     text,
-    color = Colors.secondary,
+    color,
     isDanger,
     onPress,
 }: Props) => {
+    const { theme, isDark } = useTheme();
+
+    const iconColor = isDanger
+        ? theme.red
+        : (isDark ? theme.primary : (color || theme.secondary));
+
+    const chevronColor = isDark ? "#FFFFFF" : theme.gray;
+
     return (
         <TouchableOpacity
-            style={styles.menuItem}
+            style={[
+                styles.menuItem,
+                {
+                    backgroundColor: theme.white,
+                    shadowColor: isDark ? "#000" : theme.primary
+                }
+            ]}
             onPress={onPress}
             activeOpacity={0.7}
         >
@@ -27,13 +42,13 @@ export const ProfileMenuItem = ({
                 <MaterialCommunityIcons
                     name={icon as any}
                     size={20}
-                    color={color}
+                    color={iconColor}
                 />
-
                 <Text
                     style={[
                         styles.menuItemText,
-                        isDanger && styles.logoutText,
+                        { color: isDark ? "#FFFFFF" : theme.primary },
+                        isDanger && { color: theme.red }
                     ]}
                 >
                     {text}
@@ -43,7 +58,7 @@ export const ProfileMenuItem = ({
             <MaterialCommunityIcons
                 name="chevron-right"
                 size={20}
-                color={Colors.secondary}
+                color={chevronColor}
             />
         </TouchableOpacity>
     );
@@ -54,15 +69,10 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-
-        backgroundColor: Colors.white,
         paddingVertical: 20,
         paddingHorizontal: 16,
         borderRadius: 16,
-
         marginBottom: 14,
-
-        shadowColor: Colors.primary,
         shadowOpacity: 0.1,
         shadowRadius: 6,
         shadowOffset: { width: 0, height: 3 },
@@ -78,10 +88,5 @@ const styles = StyleSheet.create({
     menuItemText: {
         fontSize: FontSizes.subheading,
         fontFamily: Fonts.body,
-        color: Colors.black,
-    },
-
-    logoutText: {
-        color: Colors.red,
     },
 });

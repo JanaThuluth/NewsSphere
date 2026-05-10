@@ -9,32 +9,57 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Colors, Fonts } from "../../constants/constants";
+
+import { useTheme } from "../../constants/ThemeContext";
+import { Fonts } from "../../constants/constants";
 
 const HomeNavbar: React.FC = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
+  const { theme } = useTheme();
+
   return (
-    <View style={[styles.wrapper, { paddingTop: insets.top }]}>
-      <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
+    <View
+      style={[
+        styles.headerWrapper,
+        {
+          paddingTop: insets.top,
+          backgroundColor: theme.primary,
+        },
+      ]}
+    >
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={theme.primary}
+      />
 
       <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => router.push("/settings")}>
+        <TouchableOpacity
+          onPress={() => router.push("/settings")}
+          style={styles.navButton}
+          activeOpacity={0.8}
+        >
           <Ionicons
             name="settings-outline"
-            size={26}
-            color={Colors.white}
+            size={24}
+            color="#FFFFFF"
           />
         </TouchableOpacity>
 
-        <Text style={styles.logoText}>NewsSphere</Text>
+        <Text style={styles.headerTitle}>
+          NewsSphere
+        </Text>
 
-        <TouchableOpacity onPress={() => router.push("/search")}>
+        <TouchableOpacity
+          onPress={() => router.push("/search")}
+          style={styles.navButton}
+          activeOpacity={0.8}
+        >
           <Ionicons
             name="search-outline"
-            size={26}
-            color={Colors.white}
+            size={24}
+            color="#FFFFFF"
           />
         </TouchableOpacity>
       </View>
@@ -45,27 +70,34 @@ const HomeNavbar: React.FC = () => {
 export default HomeNavbar;
 
 const styles = StyleSheet.create({
-  wrapper: {
-    backgroundColor: Colors.primary,
+  headerWrapper: {
+    elevation: 8,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.18,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 6,
+    zIndex: 10,
   },
 
   navbar: {
     height: 58,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    flexDirection: "row",
     paddingHorizontal: 16,
   },
 
-  logoText: {
-    fontSize: 22,
-    color: Colors.white,
+  navButton: {
+    width: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  headerTitle: {
+    fontSize: 20,
+    color: "#FFFFFF",
     fontFamily: Fonts.heading,
-    letterSpacing: 1.5,
+    fontWeight: "bold",
+    letterSpacing: 0.5,
   },
 });

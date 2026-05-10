@@ -1,18 +1,26 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
+import React from "react";
 import {
   Image,
   Linking,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { Colors, Fonts, FontSizes } from "../../../constants/constants";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { Fonts, FontSizes } from "../../../constants/constants";
+import { useTheme } from "../../../constants/ThemeContext";
 import { useFavorites } from "../../../context/FavoritesContext";
 
 export default function NewsDetailsScreen() {
+  const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
+
   const { title, description, image, source, publishedAt, content, url } =
     useLocalSearchParams();
 
@@ -54,7 +62,6 @@ export default function NewsDetailsScreen() {
 
   const handleOpenArticle = async () => {
     const articleUrl = String(url || "");
-
     if (!articleUrl) return;
 
     const canOpen = await Linking.canOpenURL(articleUrl);
@@ -68,20 +75,41 @@ export default function NewsDetailsScreen() {
     toggleFavorite(article);
   };
 
+  const styles = createStyles(theme);
+
   return (
     <View style={styles.root}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.headerIconButton}
-          onPress={() => router.back()}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="chevron-back" size={24} color={Colors.primary} />
-        </TouchableOpacity>
+      <View
+        style={[
+          styles.headerWrapper,
+          {
+            paddingTop: insets.top,
+            backgroundColor: theme.primary,
+          },
+        ]}
+      >
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor={theme.primary}
+        />
 
-        <Text style={styles.headerTitle}>News Details</Text>
+        <View style={styles.navbar}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.navButton}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={26}
+              color="#FFFFFF"
+            />
+          </TouchableOpacity>
 
-        <View style={styles.headerIconPlaceholder} />
+          <Text style={styles.navTitle}>News Details</Text>
+
+          <View style={styles.navButton} />
+        </View>
       </View>
 
       <ScrollView
@@ -96,7 +124,7 @@ export default function NewsDetailsScreen() {
               <Ionicons
                 name="newspaper-outline"
                 size={42}
-                color={Colors.gray}
+                color={theme.gray}
               />
             </View>
           )}
@@ -108,7 +136,7 @@ export default function NewsDetailsScreen() {
                   <Ionicons
                     name="newspaper-outline"
                     size={16}
-                    color={Colors.secondary}
+                    color={theme.secondary}
                   />
                   <Text style={styles.metaText} numberOfLines={1}>
                     {String(source || "News Source")}
@@ -119,7 +147,7 @@ export default function NewsDetailsScreen() {
                   <Ionicons
                     name="calendar-outline"
                     size={16}
-                    color={Colors.secondary}
+                    color={theme.secondary}
                   />
                   <Text style={styles.metaText}>{formattedDate}</Text>
                 </View>
@@ -136,7 +164,7 @@ export default function NewsDetailsScreen() {
                 <Ionicons
                   name={saved ? "bookmark" : "bookmark-outline"}
                   size={24}
-                  color={saved ? Colors.primary : "#97A2AE"}
+                  color={saved ? theme.primary : theme.gray}
                 />
               </TouchableOpacity>
             </View>
@@ -165,7 +193,11 @@ export default function NewsDetailsScreen() {
               activeOpacity={0.85}
             >
               <Text style={styles.readButtonText}>Continue Reading</Text>
-              <Ionicons name="open-outline" size={18} color={Colors.white} />
+              <Ionicons
+                name="open-outline"
+                size={18}
+                color={theme.white}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -174,162 +206,163 @@ export default function NewsDetailsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
 
-  header: {
-    height: 96,
-    paddingTop: 48,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.white,
-  },
+    headerWrapper: {
+      elevation: 8,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      zIndex: 10,
+    },
 
-  headerIconButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: Colors.background,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+    navbar: {
+      height: 58,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 16,
+    },
 
-  headerIconPlaceholder: {
-    width: 42,
-    height: 42,
-  },
+    navButton: {
+      width: 40,
+      alignItems: "center",
+      justifyContent: "center",
+    },
 
-  headerTitle: {
-    flex: 1,
-    textAlign: "center",
-    fontSize: FontSizes.subheading,
-    fontFamily: Fonts.heading,
-    color: Colors.primary,
-  },
+    navTitle: {
+      fontSize: 20,
+      color: "#FFFFFF",
+      fontFamily: Fonts.heading,
+      fontWeight: "bold",
+      letterSpacing: 0.5,
+    },
 
-  scrollContent: {
-    paddingHorizontal: 18,
-    paddingTop: 20,
-    paddingBottom: 40,
-    alignItems: "center",
-  },
+    scrollContent: {
+      paddingHorizontal: 18,
+      paddingTop: 20,
+      paddingBottom: 40,
+      alignItems: "center",
+    },
 
-  newsCard: {
-    width: "100%",
-    maxWidth: 430,
-    backgroundColor: Colors.white,
-    borderRadius: 28,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
+    newsCard: {
+      width: "100%",
+      maxWidth: 430,
+      backgroundColor: theme.white,
+      borderRadius: 28,
+      overflow: "hidden",
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
 
-  image: {
-    width: "100%",
-    height: 250,
-    backgroundColor: Colors.lightGray,
-  },
+    image: {
+      width: "100%",
+      height: 250,
+      backgroundColor: theme.lightGray,
+    },
 
-  imagePlaceholder: {
-    width: "100%",
-    height: 250,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: Colors.lightGray,
-  },
+    imagePlaceholder: {
+      width: "100%",
+      height: 250,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: theme.lightGray,
+    },
 
-  cardContent: {
-    padding: 20,
-  },
+    cardContent: {
+      padding: 20,
+    },
 
-  metaHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 18,
-    gap: 12,
-  },
+    metaHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      marginBottom: 18,
+      gap: 12,
+    },
 
-  metaBox: {
-    flex: 1,
-    gap: 9,
-  },
+    metaBox: {
+      flex: 1,
+      gap: 9,
+    },
 
-  metaItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
+    metaItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
 
-  metaText: {
-    flex: 1,
-    fontSize: FontSizes.small,
-    fontFamily: Fonts.body,
-    color: Colors.secondary,
-  },
+    metaText: {
+      flex: 1,
+      fontSize: FontSizes.small,
+      fontFamily: Fonts.body,
+      color: theme.secondary,
+    },
 
-  favoriteButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#F5F7F9",
-    justifyContent: "center",
-    alignItems: "center",
-  },
+    favoriteButton: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: theme.lightGray,
+      justifyContent: "center",
+      alignItems: "center",
+    },
 
-  favoriteButtonActive: {
-    backgroundColor: "#E8F0F6",
-  },
+    favoriteButtonActive: {
+      backgroundColor: theme.background,
+    },
 
-  title: {
-    fontSize: 25,
-    lineHeight: 36,
-    fontFamily: Fonts.heading,
-    color: Colors.primary,
-    marginBottom: 20,
-  },
+    title: {
+      fontSize: 25,
+      lineHeight: 36,
+      fontFamily: Fonts.heading,
+      color: theme.primary,
+      marginBottom: 20,
+    },
 
-  sectionBox: {
-    padding: 15,
-    borderRadius: 18,
-    backgroundColor: "#F7F9FC",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    marginBottom: 14,
-  },
+    sectionBox: {
+      padding: 15,
+      borderRadius: 18,
+      backgroundColor: theme.lightGray,
+      borderWidth: 1,
+      borderColor: theme.border,
+      marginBottom: 14,
+    },
 
-  sectionLabel: {
-    fontSize: FontSizes.small,
-    fontFamily: Fonts.heading,
-    color: Colors.primary,
-    marginBottom: 8,
-  },
+    sectionLabel: {
+      fontSize: FontSizes.small,
+      fontFamily: Fonts.heading,
+      color: theme.primary,
+      marginBottom: 8,
+    },
 
-  sectionText: {
-    fontSize: FontSizes.body,
-    lineHeight: 24,
-    fontFamily: Fonts.body,
-    color: Colors.black,
-  },
+    sectionText: {
+      fontSize: FontSizes.body,
+      lineHeight: 24,
+      fontFamily: Fonts.body,
+      color: theme.black,
+    },
 
-  readButton: {
-    marginTop: 8,
-    height: 52,
-    borderRadius: 18,
-    backgroundColor: Colors.primary,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
+    readButton: {
+      marginTop: 8,
+      height: 52,
+      borderRadius: 18,
+      backgroundColor: theme.primary,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+    },
 
-  readButtonText: {
-    fontSize: FontSizes.body,
-    fontFamily: Fonts.heading,
-    color: Colors.white,
-  },
-});
+    readButtonText: {
+      fontSize: FontSizes.body,
+      fontFamily: Fonts.heading,
+      color: theme.white,
+    },
+  });

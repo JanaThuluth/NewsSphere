@@ -1,5 +1,6 @@
 import { Image, StyleSheet, Text, View } from "react-native";
-import { Colors, Fonts, FontSizes } from "../../../constants/constants";
+import { useTheme } from "../../../constants/ThemeContext";
+import { Fonts, FontSizes } from "../../../constants/constants";
 
 interface ProfileHeaderProps {
     fullName: string;
@@ -12,14 +13,16 @@ export const ProfileHeader = ({
     email,
     photoURL,
 }: ProfileHeaderProps) => {
+    const { theme } = useTheme();
+
     return (
         <View style={styles.container}>
             <View style={styles.avatarContainer}>
-                <View style={styles.avatar}>
+                <View style={[styles.avatar, { backgroundColor: theme.primary }]}>
                     {photoURL ? (
                         <Image source={{ uri: photoURL }} style={styles.image} />
                     ) : (
-                        <Text style={styles.avatarText}>
+                        <Text style={[styles.avatarText, { color: "#FFFFFF" }]}>
                             {fullName
                                 ?.split(" ")
                                 .map((n) => n[0])
@@ -30,8 +33,8 @@ export const ProfileHeader = ({
                 </View>
             </View>
 
-            <Text style={styles.name}>{fullName}</Text>
-            <Text style={styles.email}>{email}</Text>
+            <Text style={[styles.name, { color: theme.primary }]}>{fullName}</Text>
+            <Text style={[styles.email, { color: theme.gray }]}>{email}</Text>
         </View>
     );
 };
@@ -50,7 +53,6 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: Colors.primary,
         justifyContent: "center",
         alignItems: "center",
         overflow: "hidden",
@@ -62,7 +64,6 @@ const styles = StyleSheet.create({
     },
 
     avatarText: {
-        color: Colors.white,
         fontSize: 40,
         fontFamily: Fonts.heading,
     },
@@ -70,13 +71,11 @@ const styles = StyleSheet.create({
     name: {
         fontSize: FontSizes.subheading,
         fontFamily: Fonts.heading,
-        color: Colors.primary,
         marginBottom: 4,
     },
 
     email: {
         fontSize: FontSizes.body,
         fontFamily: Fonts.body,
-        color: Colors.gray,
     },
 });

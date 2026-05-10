@@ -1,6 +1,7 @@
 import * as ImagePicker from "expo-image-picker";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Colors, Fonts, FontSizes } from "../../../constants/constants";
+import { useTheme } from "../../../constants/ThemeContext";
+import { Fonts, FontSizes } from "../../../constants/constants";
 
 interface ProfileAvatarPickerProps {
     value?: string;
@@ -11,6 +12,7 @@ export const ProfileAvatarPicker = ({
     value,
     onChange,
 }: ProfileAvatarPickerProps) => {
+    const { theme } = useTheme();
     const pickImage = async () => {
         const permission =
             await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -33,16 +35,16 @@ export const ProfileAvatarPicker = ({
     return (
         <View style={styles.avatarSection}>
             <TouchableOpacity onPress={pickImage}>
-                <View style={styles.avatar}>
+                <View style={[styles.avatar, { backgroundColor: theme.lightGray }]}>
                     {value ? (
                         <Image source={{ uri: value }} style={styles.image} />
                     ) : (
-                        <Text style={styles.avatarText}>+</Text>
+                        <Text style={[styles.avatarText, { color: theme.gray }]}>+</Text>
                     )}
                 </View>
             </TouchableOpacity>
 
-            <Text style={styles.changePhotoText}>
+            <Text style={[styles.changePhotoText, { color: theme.gray }]}>
                 Change Profile Photo
             </Text>
         </View>
@@ -59,7 +61,6 @@ const styles = StyleSheet.create({
         width: 90,
         height: 90,
         borderRadius: 45,
-        backgroundColor: Colors.lightGray,
         justifyContent: "center",
         alignItems: "center",
         overflow: "hidden",
@@ -72,14 +73,12 @@ const styles = StyleSheet.create({
 
     avatarText: {
         fontSize: 28,
-        color: Colors.gray,
         fontFamily: Fonts.heading,
     },
 
     changePhotoText: {
         marginTop: 8,
         fontSize: FontSizes.small,
-        color: Colors.gray,
         fontFamily: Fonts.body,
     },
 });
