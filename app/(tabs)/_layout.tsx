@@ -166,6 +166,12 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="search"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
