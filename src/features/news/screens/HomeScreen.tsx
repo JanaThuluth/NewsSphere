@@ -1,9 +1,17 @@
 import CategoryTabs from "@/src/components/ui/CategoryTabs";
 import { useTheme } from "@/src/constants/ThemeContext";
+import NetInfo from "@react-native-community/netinfo";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+
 import { getTopHeadlines, searchNews } from "../../../api/newsApi";
 import Card from "../../../components/ui/Card";
 import HomeNavbar from "../../../components/ui/HomeNavbar";
@@ -12,13 +20,22 @@ import TrendingSlider from "../../../components/ui/TrendingSlider";
 import { auth } from "../../../lib/firebase";
 import { createNotification } from "../../notification/notificationService";
 
+import {
+  clearNewsByCategory,
+  clearNewsBySection,
+  createNewsTable,
+  getNewsByCategory,
+  getNewsBySection,
+  insertNews,
+  mapArticleToLocalNews,
+  mapLocalNewsToArticle,
+} from "../database/newsDb";
+
 type Article = {
   title: string;
   description?: string | null;
   urlToImage: string | null;
-  source?: {
-    name?: string;
-  };
+  source?: { name?: string };
   publishedAt?: string;
   content?: string | null;
   url?: string;
@@ -46,6 +63,7 @@ const categories: Category[] = [
 
 const HomeScreen = () => {
   const { theme } = useTheme();
+  const queryClient = useQueryClient();
 
   const [loading, setLoading] = useState(true);
   const [categoryLoading, setCategoryLoading] = useState(false);
@@ -55,12 +73,96 @@ const HomeScreen = () => {
   const [sliderNews, setSliderNews] = useState<Article[]>([]);
 
   const [activeCategory, setActiveCategory] = useState("all");
-  const queryClient = useQueryClient();
+  const [isOnline, setIsOnline] = useState(true);
+
+  const saveNewsSection = async (
+    articles: Article[],
+    section: string,
+    category: string
+  ) => {
+    const localNews = articles.map((article) =>
+      mapArticleToLocalNews(article, section, category)
+    );
+
+    await clearNewsBySection(section);
+    await insertNews(localNews);
+  };
+
+  const saveCategoryNews = async (articles: Article[], category: string) => {
+    const localNews = articles.map((article) =>
+      mapArticleToLocalNews(article, "category", category)
+    );
+
+    await clearNewsByCategory(category);
+    await insertNews(localNews);
+  };
+
+  const loadNewsFromSQLite = async () => {
+    try {
+      await createNewsTable();
+
+      const [localSlider, localTrending, localGeneral] = await Promise.all([
+        getNewsBySection("slider"),
+        getNewsBySection("trending"),
+        getNewsBySection("general"),
+      ]);
+
+      setSliderNews(localSlider.map(mapLocalNewsToArticle));
+      setTrendingNews(localTrending.map(mapLocalNewsToArticle));
+      setGeneralNews(localGeneral.map(mapLocalNewsToArticle));
+    } catch (localError) {
+      console.log("Error loading local news:", localError);
+    }
+  };
+
+  const createRandomNewsNotification = async (allNews: Article[]) => {
+    if (!auth.currentUser) return;
+
+    const allAvailableNews = allNews.filter((n) => n.title && n.urlToImage);
+
+    if (allAvailableNews.length === 0) return;
+
+    const randomIndex = Math.floor(Math.random() * allAvailableNews.length);
+    const randomNews = allAvailableNews[randomIndex];
+
+    await createNotification({
+      title: "Breaking: " + randomNews.title,
+      description: randomNews.description || "",
+      message: randomNews.description || "Tap to read more",
+      imageUrl: randomNews.urlToImage || "",
+      articleId: randomNews.url || randomNews.title,
+      sourceName: randomNews.source?.name || "News App",
+      publishedAt: randomNews.publishedAt || new Date().toISOString(),
+    });
+
+    queryClient.invalidateQueries({
+      queryKey: ["notifications"],
+    });
+  };
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      const connected = !!state.isConnected;
+      setIsOnline(connected);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
+
+        await createNewsTable();
+
+        const state = await NetInfo.fetch();
+
+        if (!state.isConnected) {
+          console.log("No internet, loading news from SQLite");
+          await loadNewsFromSQLite();
+          return;
+        }
 
         const [top, trending, general] = await Promise.all([
           getTopHeadlines(),
@@ -78,40 +180,18 @@ const HomeScreen = () => {
         setTrendingNews(trendingData);
         setGeneralNews(generalData);
 
-        if (auth.currentUser) {
-          const allAvailableNews = [
-            ...sliderData,
-            ...trendingData,
-            ...generalData,
-          ].filter((n) => n.title && n.urlToImage);
+        await saveNewsSection(sliderData, "slider", "top");
+        await saveNewsSection(trendingData, "trending", "trending");
+        await saveNewsSection(generalData, "general", "all");
 
-          if (allAvailableNews.length > 0) {
-            const randomIndex = Math.floor(
-              Math.random() * allAvailableNews.length
-            );
-
-            const randomNews = allAvailableNews[randomIndex];
-
-            await createNotification({
-              title: " Breaking: " + randomNews.title,
-              description: randomNews.description || "",
-              message:
-                randomNews.description ||
-                "Tap to read the full story and stay updated.",
-              imageUrl: randomNews.urlToImage || "",
-              articleId: randomNews.url || randomNews.title,
-              sourceName: randomNews.source?.name || "News App",
-              publishedAt:
-                randomNews.publishedAt || new Date().toISOString(),
-            });
-
-            queryClient.invalidateQueries({
-              queryKey: ["notifications"],
-            });
-          }
-        }
+        await createRandomNewsNotification([
+          ...sliderData,
+          ...trendingData,
+          ...generalData,
+        ]);
       } catch (error) {
-        console.log("Error loading home news:", error);
+        console.log("API failed, loading news from SQLite:", error);
+        await loadNewsFromSQLite();
       } finally {
         setLoading(false);
       }
@@ -119,6 +199,59 @@ const HomeScreen = () => {
 
     load();
   }, []);
+
+  const handleCategoryChange = async (key: string) => {
+    setActiveCategory(key);
+
+    try {
+      setCategoryLoading(true);
+
+      await createNewsTable();
+
+      const state = await NetInfo.fetch();
+
+      if (!state.isConnected) {
+        const fallback =
+          key === "all"
+            ? await getNewsBySection("general")
+            : await getNewsByCategory(key);
+
+        setGeneralNews(fallback.map(mapLocalNewsToArticle));
+        return;
+      }
+
+      const query =
+        key === "all"
+          ? "world OR business OR politics OR science OR health OR sports"
+          : key;
+
+      const data = await searchNews({ q: query });
+      const categoryData = Array.isArray(data) ? data : [];
+
+      setGeneralNews(categoryData);
+
+      if (key === "all") {
+        await saveNewsSection(categoryData, "general", "all");
+      } else {
+        await saveCategoryNews(categoryData, key);
+      }
+    } catch (error) {
+      console.log("API category failed, loading category from SQLite:", error);
+
+      try {
+        const fallback =
+          key === "all"
+            ? await getNewsBySection("general")
+            : await getNewsByCategory(key);
+
+        setGeneralNews(fallback.map(mapLocalNewsToArticle));
+      } catch (localError) {
+        console.log("Error loading local category news:", localError);
+      }
+    } finally {
+      setCategoryLoading(false);
+    }
+  };
 
   const handleArticlePress = (item: Article) => {
     router.push({
@@ -135,55 +268,34 @@ const HomeScreen = () => {
     });
   };
 
-  const handleCategoryChange = async (key: string) => {
-    setActiveCategory(key);
+  const topNewsList = useMemo(
+    () => generalNews.filter((item) => item.urlToImage).slice(0, 6),
+    [generalNews]
+  );
 
-    try {
-      setCategoryLoading(true);
+  const bottomNewsList = useMemo(
+    () => generalNews.filter((item) => item.urlToImage).slice(6, 12),
+    [generalNews]
+  );
 
-      const query =
-        key === "all"
-          ? "world OR business OR politics OR science OR health OR sports"
-          : key;
+  const sliderList = useMemo(
+    () => sliderNews.filter((item) => item.urlToImage).slice(0, 5),
+    [sliderNews]
+  );
 
-      const data = await searchNews({ q: query });
-
-      setGeneralNews(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.log("Error loading category news:", error);
-    } finally {
-      setCategoryLoading(false);
-    }
-  };
-
-  const topNewsList = useMemo(() => {
-    return generalNews.filter((item) => item.urlToImage).slice(0, 6);
-  }, [generalNews]);
-
-  const bottomNewsList = useMemo(() => {
-    return generalNews.filter((item) => item.urlToImage).slice(6, 12);
-  }, [generalNews]);
-
-  const sliderList = useMemo(() => {
-    return sliderNews.filter((item) => item.urlToImage).slice(0, 5);
-  }, [sliderNews]);
-
-  const listData = useMemo<ListItem[]>(() => {
-    const result: ListItem[] = [];
-
-    result.push({ type: "trending" });
-
-    topNewsList.forEach((article) => {
-      result.push({ type: "article", article });
-    });
-
-    result.push({ type: "slider" });
-
-    bottomNewsList.forEach((article) => {
-      result.push({ type: "article", article });
-    });
-
-    return result;
+  const listData: ListItem[] = useMemo(() => {
+    return [
+      { type: "trending" as const },
+      ...topNewsList.map((article) => ({
+        type: "article" as const,
+        article,
+      })),
+      { type: "slider" as const },
+      ...bottomNewsList.map((article) => ({
+        type: "article" as const,
+        article,
+      })),
+    ];
   }, [topNewsList, bottomNewsList]);
 
   const styles = createStyles(theme);
@@ -200,6 +312,14 @@ const HomeScreen = () => {
     <View style={styles.root}>
       <HomeNavbar />
 
+      {!isOnline && (
+        <View style={styles.offlineBanner}>
+          <Text style={styles.offlineText}>
+            You are offline. Showing saved news.
+          </Text>
+        </View>
+      )}
+
       <CategoryTabs
         categories={categories}
         activeKey={activeCategory}
@@ -214,34 +334,33 @@ const HomeScreen = () => {
 
       <FlatList
         data={listData}
-        keyExtractor={(item, index) => {
-          if (item.type === "trending") return `trending-${index}`;
-          if (item.type === "slider") return `slider-${index}`;
-          return `article-${item.article.title}-${index}`;
-        }}
+        keyExtractor={(item, index) =>
+          item.type === "article"
+            ? `${item.article.title}-${index}`
+            : `${item.type}-${index}`
+        }
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => {
-          switch (item.type) {
-            case "trending":
-              return <TrendingSlider />;
-
-            case "slider":
-              return (
-                <NewsImageSlider
-                  data={sliderList}
-                  onPress={handleArticlePress}
-                />
-              );
-
-            case "article":
-              return (
-                <Card
-                  item={item.article}
-                  onPress={() => handleArticlePress(item.article)}
-                />
-              );
+          if (item.type === "trending") {
+            return <TrendingSlider />;
           }
+
+          if (item.type === "slider") {
+            return (
+              <NewsImageSlider
+                data={sliderList}
+                onPress={handleArticlePress}
+              />
+            );
+          }
+
+          return (
+            <Card
+              item={item.article}
+              onPress={() => handleArticlePress(item.article)}
+            />
+          );
         }}
       />
     </View>
@@ -272,5 +391,16 @@ const createStyles = (theme: any) =>
     categoryLoader: {
       paddingVertical: 8,
       alignItems: "center",
+    },
+
+    offlineBanner: {
+      paddingVertical: 8,
+      alignItems: "center",
+      backgroundColor: "#eeeeee",
+    },
+
+    offlineText: {
+      fontSize: 13,
+      color: theme.black,
     },
   });
