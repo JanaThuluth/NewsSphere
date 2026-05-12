@@ -62,7 +62,7 @@ const categories: Category[] = [
 ];
 
 const HomeScreen = () => {
-  const { theme } = useTheme();
+  const { theme, isDark } = useTheme();
   const queryClient = useQueryClient();
 
   const [loading, setLoading] = useState(true);
@@ -313,8 +313,18 @@ const HomeScreen = () => {
       <HomeNavbar />
 
       {!isOnline && (
-        <View style={styles.offlineBanner}>
-          <Text style={styles.offlineText}>
+        <View
+          style={[
+            styles.offlineBanner,
+            { backgroundColor: isDark ? "#000000" : "#eeeeee" },
+          ]}
+        >
+          <Text
+            style={[
+              styles.offlineText,
+              { color: isDark ? "#FFFFFF" : "#000000" },
+            ]}
+          >
             You are offline. Showing saved news.
           </Text>
         </View>
