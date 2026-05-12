@@ -3,6 +3,12 @@ import React from "react";
 import { Linking } from "react-native";
 import AboutScreen from "../../app/about";
 
+jest.mock("@expo/vector-icons", () => {
+    return {
+        MaterialCommunityIcons: () => null,
+    };
+});
+
 const mockBack = jest.fn();
 
 jest.mock("expo-router", () => ({

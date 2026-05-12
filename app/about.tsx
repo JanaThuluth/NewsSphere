@@ -42,8 +42,11 @@ export default function AboutScreen() {
 
             <View style={[styles.headerWrapper, { paddingTop: insets.top, backgroundColor: theme.primary }]}>
                 <View style={styles.navbar}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.navButton}>
-                        <MaterialCommunityIcons name="arrow-left" size={26} color="#fff" />
+                    <TouchableOpacity
+                        testID="back-button"
+                        onPress={() => router.back()}
+                        style={styles.navButton}
+                    >                        <MaterialCommunityIcons name="arrow-left" size={26} color="#fff" />
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>About App</Text>
                     <View style={styles.navButton} />
@@ -101,10 +104,21 @@ export default function AboutScreen() {
                 <View style={styles.section}>
                     <Text style={[styles.sectionLabel, { color: theme.gray }]}>DATA SOURCE</Text>
                     <TouchableOpacity
-                        style={[styles.card, styles.sourceRow, { backgroundColor: theme.white, borderColor: theme.border }]}
+                        testID="guardian-link"
+                        style={[
+                            styles.card,
+                            styles.sourceRow,
+                            {
+                                backgroundColor: theme.white,
+                                borderColor: theme.border,
+                            },
+                        ]}
                         activeOpacity={0.7}
-                        onPress={() => Linking.openURL("https://open-platform.theguardian.com/")}
-                    >
+                        onPress={() =>
+                            Linking.openURL(
+                                "https://open-platform.theguardian.com/"
+                            )
+                        }>
                         <View style={[styles.iconBox, { backgroundColor: theme.lightGray }]}>
                             <MaterialCommunityIcons name="api" size={18} color={theme.primary} />
                         </View>
