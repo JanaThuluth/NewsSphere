@@ -1,5 +1,13 @@
 import * as ImagePicker from "expo-image-picker";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+    Alert,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+
 import { useTheme } from "../../../constants/ThemeContext";
 import { Fonts, FontSizes } from "../../../constants/constants";
 
@@ -13,6 +21,7 @@ export const ProfileAvatarPicker = ({
     onChange,
 }: ProfileAvatarPickerProps) => {
     const { theme } = useTheme();
+
     const pickImage = async () => {
         const permission =
             await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -20,7 +29,7 @@ export const ProfileAvatarPicker = ({
         if (!permission.granted) return;
 
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ['images'],
             allowsEditing: true,
             aspect: [1, 1],
             quality: 0.7,
@@ -32,19 +41,78 @@ export const ProfileAvatarPicker = ({
         }
     };
 
+    const takePhoto = async () => {
+        const permission =
+            await ImagePicker.requestCameraPermissionsAsync();
+
+        if (!permission.granted) return;
+
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.7,
+        });
+
+        if (!result.canceled) {
+            const uri = result.assets[0].uri + "?t=" + Date.now();
+            onChange(uri);
+        }
+    };
+
+    const openImageOptions = () => {
+        Alert.alert(
+            "Profile Photo",
+            "Choose an option",
+            [
+                {
+                    text: "Take Photo",
+                    onPress: takePhoto,
+                },
+                {
+                    text: "Choose from Gallery",
+                    onPress: pickImage,
+                },
+                {
+                    text: "Cancel",
+                    style: "cancel",
+                },
+            ]
+        );
+    };
+
     return (
         <View style={styles.avatarSection}>
-            <TouchableOpacity onPress={pickImage}>
-                <View style={[styles.avatar, { backgroundColor: theme.lightGray }]}>
+            <TouchableOpacity onPress={openImageOptions}>
+                <View
+                    style={[
+                        styles.avatar,
+                        { backgroundColor: theme.lightGray },
+                    ]}
+                >
                     {value ? (
-                        <Image source={{ uri: value }} style={styles.image} />
+                        <Image
+                            source={{ uri: value }}
+                            style={styles.image}
+                        />
                     ) : (
-                        <Text style={[styles.avatarText, { color: theme.gray }]}>+</Text>
+                        <Text
+                            style={[
+                                styles.avatarText,
+                                { color: theme.gray },
+                            ]}
+                        >
+                            +
+                        </Text>
                     )}
                 </View>
             </TouchableOpacity>
 
-            <Text style={[styles.changePhotoText, { color: theme.gray }]}>
+            <Text
+                style={[
+                    styles.changePhotoText,
+                    { color: theme.gray },
+                ]}
+            >
                 Change Profile Photo
             </Text>
         </View>

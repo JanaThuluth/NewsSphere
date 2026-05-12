@@ -29,7 +29,7 @@ export const FormTextField = ({
                     {
                         borderColor: theme.border,
                         backgroundColor: theme.white,
-                        color: "#FFFFFF"
+                        color: theme.black
                     },
                     !editable && { opacity: 0.6 },
                     multiline && styles.textarea

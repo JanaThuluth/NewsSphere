@@ -23,7 +23,6 @@ const ThemeContext = createContext({
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const [isDark, setIsDark] = useState(false);
 
-    // تحميل الحالة من الجهاز عند بدء التطبيق
     useEffect(() => {
         const loadTheme = async () => {
             const savedTheme = await AsyncStorage.getItem('userTheme');
@@ -37,7 +36,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const toggleTheme = async () => {
         const newMode = !isDark;
         setIsDark(newMode);
-        // حفظ الحالة الجديدة في ذاكرة الجهاز
         await AsyncStorage.setItem('userTheme', newMode ? 'dark' : 'light');
     };
 
