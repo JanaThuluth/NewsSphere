@@ -7,7 +7,7 @@ import {
     Text,
     View,
 } from "react-native";
-import { Fonts } from "../../constants/constants";
+import { Fonts } from "../../../constants/constants";
 
 const { width } = Dimensions.get("window");
 

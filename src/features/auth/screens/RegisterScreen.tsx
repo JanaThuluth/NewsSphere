@@ -1,33 +1,28 @@
-import React from "react";
+import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import React from "react";
+import { Controller } from "react-hook-form";
 import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  StatusBar,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { FontAwesome, Feather, Ionicons } from "@expo/vector-icons";
 import { Colors, Fonts, FontSizes } from "../../../constants/constants";
-import { useRegisterForm } from "../useRegisterForm";
+import AuthInput from "../components/AuthInput";
+import { useRegisterForm } from "../hooks/useRegisterForm";
 
 export default function RegisterScreen() {
   const router = useRouter();
 
   const {
-    fullName,
-    setFullName,
-    email,
-    setEmail,
-    password,
-    setPassword,
-    confirmPassword,
-    setConfirmPassword,
+    control,
+    controlRules,
     nameError,
     emailError,
     passwordError,
@@ -37,10 +32,6 @@ export default function RegisterScreen() {
     secureConfirmPassword,
     setSecureConfirmPassword,
     loading,
-    validateNameField,
-    validateEmailField,
-    validatePasswordField,
-    validateConfirmPasswordField,
     handleRegister,
   } = useRegisterForm(router);
 
@@ -62,6 +53,7 @@ export default function RegisterScreen() {
               style={styles.backButton}
               onPress={() => router.back()}
               activeOpacity={0.8}
+              disabled={loading}
             >
               <Ionicons name="arrow-back" size={24} color={Colors.primary} />
             </TouchableOpacity>
@@ -71,104 +63,98 @@ export default function RegisterScreen() {
               Register to continue exploring the latest news.
             </Text>
 
-            <View style={styles.inputWrapper}>
-              <FontAwesome name="user-o" size={20} color={Colors.secondary} />
-              <TextInput
-                value={fullName}
-                onChangeText={(text) => {
-                  setFullName(text);
-                  validateNameField(text);
-                }}
-                onBlur={() => validateNameField(fullName)}
-                placeholder="Full name"
-                placeholderTextColor={Colors.gray}
-                style={styles.input}
-              />
-            </View>
-            {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
-
-            <View style={styles.inputWrapper}>
-              <Feather name="mail" size={20} color={Colors.secondary} />
-              <TextInput
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  validateEmailField(text);
-                }}
-                onBlur={() => validateEmailField(email)}
-                placeholder="Email address"
-                placeholderTextColor={Colors.gray}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                style={styles.input}
-              />
-            </View>
-            {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-
-            <View style={styles.inputWrapper}>
-              <Feather name="lock" size={20} color={Colors.secondary} />
-              <TextInput
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  validatePasswordField(text);
-                  if (confirmPassword) {
-                    validateConfirmPasswordField(confirmPassword, text);
+            <Controller
+              control={control}
+              name="fullName"
+              rules={controlRules.fullName}
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AuthInput
+                  icon={
+                    <FontAwesome
+                      name="user-o"
+                      size={20}
+                      color={Colors.secondary}
+                    />
                   }
-                }}
-                onBlur={() => validatePasswordField(password)}
-                placeholder="Password"
-                placeholderTextColor={Colors.gray}
-                secureTextEntry={securePassword}
-                style={styles.input}
-              />
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => setSecurePassword(!securePassword)}
-              >
-                <Feather
-                  name={securePassword ? "eye-off" : "eye"}
-                  size={20}
-                  color={Colors.secondary}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={nameError}
+                  placeholder="Full name"
+                  disabled={loading}
                 />
-              </TouchableOpacity>
-            </View>
-            {passwordError ? (
-              <Text style={styles.errorText}>{passwordError}</Text>
-            ) : null}
+              )}
+            />
 
-            <View style={styles.inputWrapper}>
-              <Feather name="lock" size={20} color={Colors.secondary} />
-              <TextInput
-                value={confirmPassword}
-                onChangeText={(text) => {
-                  setConfirmPassword(text);
-                  validateConfirmPasswordField(text, password);
-                }}
-                onBlur={() =>
-                  validateConfirmPasswordField(confirmPassword, password)
-                }
-                placeholder="Confirm Password"
-                placeholderTextColor={Colors.gray}
-                secureTextEntry={secureConfirmPassword}
-                style={styles.input}
-              />
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() =>
-                  setSecureConfirmPassword(!secureConfirmPassword)
-                }
-              >
-                <Feather
-                  name={secureConfirmPassword ? "eye-off" : "eye"}
-                  size={20}
-                  color={Colors.secondary}
+            <Controller
+              control={control}
+              name="email"
+              rules={controlRules.email}
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AuthInput
+                  icon={
+                    <Feather name="mail" size={20} color={Colors.secondary} />
+                  }
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={emailError}
+                  placeholder="Email address"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  disabled={loading}
                 />
-              </TouchableOpacity>
-            </View>
-            {confirmPasswordError ? (
-              <Text style={styles.errorText}>{confirmPasswordError}</Text>
-            ) : null}
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="password"
+              rules={controlRules.password}
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AuthInput
+                  icon={
+                    <Feather name="lock" size={20} color={Colors.secondary} />
+                  }
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={passwordError}
+                  placeholder="Password"
+                  secureTextEntry={securePassword}
+                  disabled={loading}
+                  secureToggle
+                  secureValue={securePassword}
+                  onToggleSecure={() => setSecurePassword(!securePassword)}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="confirmPassword"
+              rules={controlRules.confirmPassword}
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AuthInput
+                  icon={
+                    <Feather name="lock" size={20} color={Colors.secondary} />
+                  }
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={confirmPasswordError}
+                  placeholder="Confirm Password"
+                  secureTextEntry={secureConfirmPassword}
+                  disabled={loading}
+                  secureToggle
+                  secureValue={secureConfirmPassword}
+                  onToggleSecure={() =>
+                    setSecureConfirmPassword(!secureConfirmPassword)
+                  }
+                />
+              )}
+            />
 
             <Text style={styles.termsText}>
               By continuing, you agree to our Terms of Service and Privacy
@@ -191,6 +177,7 @@ export default function RegisterScreen() {
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => router.push("/login")}
+                disabled={loading}
               >
                 <Text style={styles.signinText}>Log In</Text>
               </TouchableOpacity>
@@ -242,31 +229,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 30,
     lineHeight: 21,
-  },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.2,
-    borderColor: "#AAB7C4",
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 56,
-    marginBottom: 20,
-    backgroundColor: Colors.white,
-  },
-  input: {
-    flex: 1,
-    marginLeft: 12,
-    fontSize: 16,
-    fontFamily: Fonts.body,
-    color: Colors.black,
-  },
-  errorText: {
-    color: "#D32F2F",
-    fontSize: 12,
-    marginLeft: 6,
-    marginBottom: 5,
-    fontFamily: Fonts.body,
   },
   termsText: {
     fontSize: 12,

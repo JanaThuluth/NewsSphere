@@ -2,23 +2,23 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Keyboard,
-    Pressable,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Keyboard,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { searchNews } from "../../../api/newsApi";
-import Card from "../../../components/ui/Card";
+import Card from "../../../../src/features/news/components/Card";
 import { Fonts, FontSizes } from "../../../constants/constants";
 import { useTheme } from "../../../constants/ThemeContext";
+import { searchNews } from "../api/newsApi";
 
 type Article = {
   title: string;

@@ -6,8 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useTheme } from "../../constants/ThemeContext";
-
+import { useTheme } from "../../../constants/ThemeContext";
 type Category = {
   key: string;
   label: string;

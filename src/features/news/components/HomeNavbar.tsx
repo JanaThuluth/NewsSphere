@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useTheme } from "../../constants/ThemeContext";
-import { Fonts } from "../../constants/constants";
+import { useTheme } from "../../../constants/ThemeContext";
+import { Fonts } from "../../../constants/constants";
 
 const HomeNavbar: React.FC = () => {
   const insets = useSafeAreaInsets();

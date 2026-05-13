@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import React, { useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -18,102 +19,59 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import AuthInput from "../components/AuthInput";
 import { Colors, Fonts, FontSizes } from "../../../constants/constants";
 import { auth } from "../../../lib/firebase";
+
+type LoginFormData = {
+  email: string;
+  password: string;
+};
 
 export default function LoginScreen() {
   const router = useRouter();
   const passwordInputRef = useRef<TextInput | null>(null);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [secureText, setSecureText] = useState(true);
-
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [isForgotLoading, setIsForgotLoading] = useState(false);
 
   const isAnyLoading = isLoginLoading || isForgotLoading;
 
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    setValue,
+    setError,
+    trigger,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    mode: "onBlur",
+  });
+
   const normalizeEmail = (value: string) => value.trim().toLowerCase();
 
-  const validateEmail = (value: string) => {
-    const cleanValue = normalizeEmail(value);
-
-    if (!cleanValue) {
-      return "Email is required.";
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(cleanValue)) {
-      return "Please enter a valid email address.";
-    }
-
-    return "";
-  };
-
-  const validatePassword = (value: string) => {
-    if (!value.trim()) {
-      return "Password is required.";
-    }
-
-    return "";
-  };
-
-  const validateForm = () => {
-    const currentEmailError = validateEmail(email);
-    const currentPasswordError = validatePassword(password);
-
-    setEmailError(currentEmailError);
-    setPasswordError(currentPasswordError);
-
-    return !currentEmailError && !currentPasswordError;
-  };
-
-  const handleEmailChange = (value: string) => {
-    setEmail(value);
-
-    if (emailError) {
-      setEmailError(validateEmail(value));
-    }
-  };
-
-  const handlePasswordChange = (value: string) => {
-    setPassword(value);
-
-    if (passwordError) {
-      setPasswordError(validatePassword(value));
-    }
-  };
-
-  const handleEmailBlur = () => {
-    const cleanedEmail = normalizeEmail(email);
-    setEmail(cleanedEmail);
-    setEmailError(validateEmail(cleanedEmail));
-  };
-
-  const handlePasswordBlur = () => {
-    setPasswordError(validatePassword(password));
-  };
-
-  const handleLogin = async () => {
+  const handleLogin = async (data: LoginFormData) => {
     if (isAnyLoading) return;
 
-    const isValid = validateForm();
-    if (!isValid) return;
+    const cleanEmail = normalizeEmail(data.email);
+    setValue("email", cleanEmail);
 
     try {
       setIsLoginLoading(true);
 
       const userCredential = await signInWithEmailAndPassword(
         auth,
-        normalizeEmail(email),
-        password
+        cleanEmail,
+        data.password
       );
 
-      console.log("Logged in:", userCredential.user.email);
+      
       router.replace("/(tabs)/home");
     } catch (error: any) {
       let message = "Something went wrong. Please try again.";
@@ -121,24 +79,36 @@ export default function LoginScreen() {
       switch (error?.code) {
         case "auth/invalid-email":
           message = "The email address is invalid.";
-          setEmailError("Please enter a valid email address.");
+          setError("email", {
+            type: "firebase",
+            message: "Please enter a valid email address.",
+          });
           break;
+
         case "auth/user-not-found":
           message = "No account found with this email.";
           break;
+
         case "auth/wrong-password":
           message = "The password is incorrect.";
-          setPasswordError("Incorrect password.");
+          setError("password", {
+            type: "firebase",
+            message: "Incorrect password.",
+          });
           break;
+
         case "auth/invalid-credential":
           message = "Invalid email or password.";
           break;
+
         case "auth/user-disabled":
           message = "This account has been disabled.";
           break;
+
         case "auth/too-many-requests":
           message = "Too many attempts. Please try again later.";
           break;
+
         case "auth/network-request-failed":
           message = "Network error. Please check your internet connection.";
           break;
@@ -154,13 +124,15 @@ export default function LoginScreen() {
   const handleForgotPassword = async () => {
     if (isAnyLoading) return;
 
-    const cleanedEmail = normalizeEmail(email);
-    const currentEmailError = validateEmail(cleanedEmail);
+    const cleanEmail = normalizeEmail(getValues("email"));
 
-    setEmail(cleanedEmail);
-    setEmailError(currentEmailError);
+    setValue("email", cleanEmail, {
+      shouldValidate: true,
+    });
 
-    if (currentEmailError) {
+    const isEmailValid = await trigger("email");
+
+    if (!isEmailValid) {
       Alert.alert(
         "Enter your email first",
         "Please type a valid email address so we can send you a reset link."
@@ -172,7 +144,7 @@ export default function LoginScreen() {
       setIsForgotLoading(true);
 
       auth.languageCode = "en";
-      await sendPasswordResetEmail(auth, cleanedEmail);
+      await sendPasswordResetEmail(auth, cleanEmail);
 
       Alert.alert(
         "Password reset email sent",
@@ -184,17 +156,24 @@ export default function LoginScreen() {
       switch (error?.code) {
         case "auth/invalid-email":
           message = "The email address is invalid.";
-          setEmailError("Please enter a valid email address.");
+          setError("email", {
+            type: "firebase",
+            message: "Please enter a valid email address.",
+          });
           break;
+
         case "auth/missing-email":
           message = "Please enter your email address first.";
           break;
+
         case "auth/user-not-found":
           message = "No account found with this email.";
           break;
+
         case "auth/network-request-failed":
           message = "Network error. Please check your internet connection.";
           break;
+
         case "auth/too-many-requests":
           message = "Too many requests. Please try again later.";
           break;
@@ -237,71 +216,87 @@ export default function LoginScreen() {
                   Login to continue exploring the latest news.
                 </Text>
 
-                <View
-                  style={[
-                    styles.inputWrapper,
-                    emailError ? styles.inputWrapperError : null,
-                  ]}
-                >
-                  <Feather name="mail" size={20} color={Colors.secondary} />
-                  <TextInput
-                    value={email}
-                    onChangeText={handleEmailChange}
-                    onBlur={handleEmailBlur}
-                    placeholder="Email address"
-                    placeholderTextColor={Colors.gray}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    returnKeyType="next"
-                    textContentType="emailAddress"
-                    autoComplete="email"
-                    style={styles.input}
-                    editable={!isAnyLoading}
-                    onSubmitEditing={() => passwordInputRef.current?.focus()}
-                  />
-                </View>
-                {!!emailError && (
-                  <Text style={styles.errorText}>{emailError}</Text>
-                )}
+                <Controller
+                  control={control}
+                  name="email"
+                  rules={{
+                    required: "Email is required.",
+                    validate: (value) => {
+                      const cleanEmail = normalizeEmail(value);
+                      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-                <View
-                  style={[
-                    styles.inputWrapper,
-                    passwordError ? styles.inputWrapperError : null,
-                  ]}
-                >
-                  <Feather name="lock" size={20} color={Colors.secondary} />
-                  <TextInput
-                    ref={passwordInputRef}
-                    value={password}
-                    onChangeText={handlePasswordChange}
-                    onBlur={handlePasswordBlur}
-                    placeholder="Password"
-                    placeholderTextColor={Colors.gray}
-                    secureTextEntry={secureText}
-                    style={styles.input}
-                    editable={!isAnyLoading}
-                    returnKeyType="done"
-                    textContentType="password"
-                    autoComplete="password"
-                    onSubmitEditing={handleLogin}
-                  />
-                  <TouchableOpacity
-                    onPress={() => setSecureText((prev) => !prev)}
-                    disabled={isAnyLoading}
-                    activeOpacity={0.8}
-                  >
-                    <Feather
-                      name={secureText ? "eye-off" : "eye"}
-                      size={20}
-                      color={Colors.secondary}
+                      if (!emailRegex.test(cleanEmail)) {
+                        return "Please enter a valid email address.";
+                      }
+
+                      return true;
+                    },
+                  }}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <AuthInput
+                      icon={
+                        <Feather
+                          name="mail"
+                          size={20}
+                          color={Colors.secondary}
+                        />
+                      }
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={() => {
+                        const cleanEmail = normalizeEmail(value);
+                        setValue("email", cleanEmail, {
+                          shouldValidate: true,
+                        });
+                        onBlur();
+                      }}
+                      error={errors.email?.message}
+                      placeholder="Email address"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      returnKeyType="next"
+                      textContentType="emailAddress"
+                      autoComplete="email"
+                      disabled={isAnyLoading}
+                      onSubmitEditing={() => passwordInputRef.current?.focus()}
                     />
-                  </TouchableOpacity>
-                </View>
-                {!!passwordError && (
-                  <Text style={styles.errorText}>{passwordError}</Text>
-                )}
+                  )}
+                />
+
+                <Controller
+                  control={control}
+                  name="password"
+                  rules={{
+                    required: "Password is required.",
+                  }}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <AuthInput
+                      ref={passwordInputRef}
+                      icon={
+                        <Feather
+                          name="lock"
+                          size={20}
+                          color={Colors.secondary}
+                        />
+                      }
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      error={errors.password?.message}
+                      placeholder="Password"
+                      secureTextEntry={secureText}
+                      returnKeyType="done"
+                      textContentType="password"
+                      autoComplete="password"
+                      disabled={isAnyLoading}
+                      secureToggle
+                      secureValue={secureText}
+                      onToggleSecure={() => setSecureText((prev) => !prev)}
+                      onSubmitEditing={handleSubmit(handleLogin)}
+                    />
+                  )}
+                />
 
                 <View style={styles.optionsRow}>
                   <TouchableOpacity
@@ -323,7 +318,7 @@ export default function LoginScreen() {
                     isAnyLoading ? styles.loginButtonDisabled : null,
                   ]}
                   activeOpacity={0.85}
-                  onPress={handleLogin}
+                  onPress={handleSubmit(handleLogin)}
                   disabled={isAnyLoading}
                 >
                   <Text style={styles.loginButtonText}>
@@ -399,34 +394,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 100,
     lineHeight: 21,
-  },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.2,
-    borderColor: "#AAB7C4",
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 56,
-    marginBottom: 20,
-    backgroundColor: Colors.white,
-  },
-  inputWrapperError: {
-    borderColor: "#DC2626",
-  },
-  input: {
-    flex: 1,
-    marginLeft: 12,
-    fontSize: 16,
-    fontFamily: Fonts.body,
-    color: Colors.black,
-  },
-  errorText: {
-    fontSize: 12,
-    fontFamily: Fonts.body,
-    color: "#DC2626",
-    marginBottom: 6,
-    marginLeft: 5,
   },
   optionsRow: {
     flexDirection: "row",

@@ -79,7 +79,7 @@ export const createNotification = async (data: NotificationData) => {
                 isRead: false,
                 createdAt: serverTimestamp()
             });
-            console.log("✅ Notification created with full article data");
+            
         }
     } catch (error) {
         console.error("❌ Error creating notification:", error);

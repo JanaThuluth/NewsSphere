@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useTheme } from "../../constants/ThemeContext";
-import { useFavorites } from "../../context/FavoritesContext";
+import { useTheme } from "../../../constants/ThemeContext";
+import { useFavorites } from "../../../context/FavoritesContext";
 
 type Article = {
   title: string;
